@@ -27,17 +27,17 @@ C_STATUS_A=$C_GREEN
 C_STATUS_I=$C_GRAY
 C_ACCENT=$C_ORANGE
 
-DB_DIR="/etc/firewallfalcon"
+DB_DIR="/etc/fixxed"
 DB_FILE="$DB_DIR/users.db"
 INSTALL_FLAG_FILE="$DB_DIR/.install"
 BADVPN_SERVICE_FILE="/etc/systemd/system/badvpn.service"
 BADVPN_BUILD_DIR="/root/badvpn-build"
 HAPROXY_CONFIG="/etc/haproxy/haproxy.cfg"
 NGINX_CONFIG_FILE="/etc/nginx/sites-available/default"
-SSL_CERT_DIR="/etc/firewallfalcon/ssl"
-SSL_CERT_FILE="$SSL_CERT_DIR/firewallfalcon.pem"
-SSL_CERT_CHAIN_FILE="$SSL_CERT_DIR/firewallfalcon.crt"
-SSL_CERT_KEY_FILE="$SSL_CERT_DIR/firewallfalcon.key"
+SSL_CERT_DIR="/etc/fixxed/ssl"
+SSL_CERT_FILE="$SSL_CERT_DIR/fixxed.pem"
+SSL_CERT_CHAIN_FILE="$SSL_CERT_DIR/fixxed.crt"
+SSL_CERT_KEY_FILE="$SSL_CERT_DIR/fixxed.key"
 EDGE_CERT_INFO_FILE="$DB_DIR/edge_cert.conf"
 NGINX_PORTS_FILE="$DB_DIR/nginx_ports.conf"
 EDGE_PUBLIC_HTTP_PORT="80"
@@ -47,7 +47,7 @@ NGINX_INTERNAL_TLS_PORT="8443"
 HAPROXY_INTERNAL_DECRYPT_PORT="10443"
 DNSTT_SERVICE_FILE="/etc/systemd/system/dnstt.service"
 DNSTT_BINARY="/usr/local/bin/dnstt-server"
-DNSTT_KEYS_DIR="/etc/firewallfalcon/dnstt"
+DNSTT_KEYS_DIR="/etc/fixxed/dnstt"
 DNSTT_CONFIG_FILE="$DB_DIR/dnstt_info.conf"
 DNS_INFO_FILE="$DB_DIR/dns_info.conf"
 UDP_CUSTOM_DIR="/root/udp"
@@ -56,26 +56,26 @@ UDPGW_BINARY="/usr/local/bin/udpgw"
 UDPGW_SERVICE_FILE="/etc/systemd/system/udpgw.service"
 SSH_BANNER_FILE="/etc/bannerssh"
 FALCONPROXY_SERVICE_FILE="/etc/systemd/system/falconproxy.service"
-FALCONPROXY_BINARY="/usr/local/bin/falconproxy"
-FALCONPROXY_CONFIG_FILE="$DB_DIR/falconproxy_config.conf"
-LIMITER_SCRIPT="/usr/local/bin/firewallfalcon-limiter.sh"
-LIMITER_SERVICE="/etc/systemd/system/firewallfalcon-limiter.service"
+FALCONPROXY_BINARY="/usr/local/bin/fixxedproxy"
+FALCONPROXY_CONFIG_FILE="$DB_DIR/fixxedproxy_config.conf"
+LIMITER_SCRIPT="/usr/local/bin/fixxed-limiter.sh"
+LIMITER_SERVICE="/etc/systemd/system/fixxed-limiter.service"
 BANDWIDTH_DIR="$DB_DIR/bandwidth"
-BANDWIDTH_SCRIPT="/usr/local/bin/firewallfalcon-bandwidth.sh"
-BANDWIDTH_SERVICE="/etc/systemd/system/firewallfalcon-bandwidth.service"
-LEGACY_BANDWIDTH_DIR="/usr/local/bin/firewallfalcon-bandwidth"
-TRIAL_CLEANUP_SCRIPT="/usr/local/bin/firewallfalcon-trial-cleanup.sh"
-LOGIN_INFO_SCRIPT="/usr/local/bin/firewallfalcon-login-info.sh"
-SSHD_FF_CONFIG="/etc/ssh/sshd_config.d/firewallfalcon.conf"
+BANDWIDTH_SCRIPT="/usr/local/bin/fixxed-bandwidth.sh"
+BANDWIDTH_SERVICE="/etc/systemd/system/fixxed-bandwidth.service"
+LEGACY_BANDWIDTH_DIR="/usr/local/bin/fixxed-bandwidth"
+TRIAL_CLEANUP_SCRIPT="/usr/local/bin/fixxed-trial-cleanup.sh"
+LOGIN_INFO_SCRIPT="/usr/local/bin/fixxed-login-info.sh"
+SSHD_FF_CONFIG="/etc/ssh/sshd_config.d/fixxed.conf"
 
 # --- Web Panel Variables ---
-PANEL_SCRIPT="/usr/local/bin/firewallfalcon-panel.py"
+PANEL_SCRIPT="/usr/local/bin/fixxed-panel.py"
 PANEL_HTML_DIR="$DB_DIR/panel"
 PANEL_HTML_FILE="$DB_DIR/panel/index.html"
 PANEL_CONF="$DB_DIR/panel.conf"
-PANEL_SERVICE_FILE="/etc/systemd/system/firewallfalcon-panel.service"
+PANEL_SERVICE_FILE="/etc/systemd/system/fixxed-panel.service"
 PANEL_PORT=44380
-PANEL_REPO_BASE="https://raw.githubusercontent.com/FirewallFalconsLabs/FirewallFalcon-Manager/main/panel"
+PANEL_REPO_BASE="https://raw.githubusercontent.com/-"
 
 # --- ZiVPN Variables ---
 ZIVPN_DIR="/etc/zivpn"
@@ -85,7 +85,7 @@ ZIVPN_CONFIG_FILE="$ZIVPN_DIR/config.json"
 ZIVPN_CERT_FILE="$ZIVPN_DIR/zivpn.crt"
 ZIVPN_KEY_FILE="$ZIVPN_DIR/zivpn.key"
 
-DESEC_TOKEN="V55cFY8zTictLCPfviiuX5DHjs15"
+DESEC_TOKEN="jH3dtkyqPn9qVq7S8KqYa4yFAUZ6"
 DESEC_DOMAIN="manager.firewallfalcon.qzz.io"
 
 SELECTED_USER=""
@@ -168,7 +168,7 @@ _map_pkg_names() {
 }
 
 if [[ $EUID -ne 0 ]]; then
-   echo -e "${C_RED}❌ Error: This script requires root privileges to run.${C_RESET}"
+   echo -e "${C_RED}❌ Error: Este script requiere privilegios de root para ejecutarse.${C_RESET}"
    exit 1
 fi
 
@@ -235,7 +235,7 @@ rewrite_ubuntu_apt_sources() {
     for file in "${source_files[@]}"; do
         [[ -f "$file" ]] || continue
         if grep -Eq "$from_archive|$from_security|$from_ports" "$file" 2>/dev/null; then
-            backup_file="${file}.bak.firewallfalcon"
+            backup_file="${file}.bak.fixxed"
             [[ -f "$backup_file" ]] || cp "$file" "$backup_file" 2>/dev/null || true
             sed -i -E \
                 -e "s|$from_archive|$to_archive|g" \
@@ -280,7 +280,7 @@ ff_apt_update() {
     fi
 
     if repair_ubuntu_apt_mirrors; then
-        echo -e "${C_YELLOW}⚠️ APT mirror timed out. Switching Ubuntu sources to archive.ubuntu.com and retrying...${C_RESET}"
+        echo -e "${C_YELLOW}⚠️ Se agotó el tiempo de espera del espejo de APT. Cambiando las fuentes de Ubuntu a archive.ubuntu.com y reintentando...${C_RESET}"
         apt-get clean >/dev/null 2>&1 || true
         if DEBIAN_FRONTEND=noninteractive apt-get "${apt_opts[@]}" update; then
             APT_CACHE_READY=1
@@ -289,7 +289,7 @@ ff_apt_update() {
     fi
 
     if switch_ubuntu_to_old_releases; then
-        echo -e "${C_YELLOW}⚠️ Detected an end-of-life Ubuntu release. Switching APT sources to old-releases.ubuntu.com and retrying...${C_RESET}"
+        echo -e "${C_YELLOW}⚠️ Se ha detectado una versión de Ubuntu cuyo ciclo de vida ha finalizado. Cambiando las fuentes de APT a old-releases.ubuntu.com y reintentando...${C_RESET}"
         apt-get clean >/dev/null 2>&1 || true
         if DEBIAN_FRONTEND=noninteractive apt-get "${apt_opts[@]}" update; then
             APT_CACHE_READY=1
@@ -297,7 +297,7 @@ ff_apt_update() {
         fi
     fi
 
-    echo -e "${C_RED}❌ Failed to refresh package lists. Please check VPS network, DNS, or blocked Ubuntu mirrors.${C_RESET}"
+    echo -e "${C_RED}❌ No se pudieron actualizar las listas de paquetes. Por favor, comprueba la red del VPS, el DNS o si hay réplicas de Ubuntu bloqueadas..${C_RESET}"
     return 1
 }
 
@@ -326,7 +326,7 @@ ff_pkg_install() {
         yum) yum install -y -q "${mapped[@]}" ;;
         zypper) zypper install -y -q "${mapped[@]}" ;;
         pacman) pacman -S --noconfirm --needed "${mapped[@]}" ;;
-        *) echo -e "${C_RED}❌ Unsupported package manager.${C_RESET}"; return 1 ;;
+        *) echo -e "${C_RED}❌ Gestor de paquetes no compatible.${C_RESET}"; return 1 ;;
     esac
 }
 
@@ -341,7 +341,7 @@ ff_pkg_purge() {
         yum) yum remove -y -q "${mapped[@]}" ;;
         zypper) zypper remove -y "${mapped[@]}" ;;
         pacman) pacman -Rns --noconfirm "${mapped[@]}" 2>/dev/null ;;
-        *) echo -e "${C_RED}❌ Unsupported package manager.${C_RESET}"; return 1 ;;
+        *) echo -e "${C_RED}❌ Gestor de paquetes no compatible.${C_RESET}"; return 1 ;;
     esac
 }
 
@@ -378,20 +378,20 @@ check_environment() {
     done
 
     if (( ${#missing_packages[@]} > 0 )); then
-        echo -e "${C_YELLOW}⚠️ Installing missing dependencies: ${missing_packages[*]}${C_RESET}"
+        echo -e "${C_YELLOW}⚠️ Instalando dependencias faltantes: ${missing_packages[*]}${C_RESET}"
         ff_pkg_install "${missing_packages[@]}" >/dev/null 2>&1 || {
-            echo -e "${C_RED}❌ Error: Failed to install required dependencies: ${missing_packages[*]}.${C_RESET}"
+            echo -e "${C_RED}❌ Error: No se pudieron instalar las dependencias necesarias: ${missing_packages[*]}.${C_RESET}"
             exit 1
         }
     fi
 }
 
-ensure_firewallfalcon_dirs() {
+ensure_fixxed_dirs() {
     mkdir -p "$DB_DIR" "$SSL_CERT_DIR" "$BANDWIDTH_DIR" /etc/ssh/sshd_config.d
     touch "$DB_FILE"
 }
 
-ensure_firewallfalcon_system_group() {
+ensure_fixxed_system_group() {
     getent group "$FF_USERS_GROUP" >/dev/null 2>&1 || groupadd "$FF_USERS_GROUP" >/dev/null 2>&1 || true
 }
 
@@ -400,7 +400,7 @@ db_has_user() {
     awk -F: -v target="$1" '$1 == target { found=1; exit } END { exit(found ? 0 : 1) }' "$DB_FILE"
 }
 
-is_firewallfalcon_orphan_user() {
+is_fixxed_orphan_user() {
     local username="$1"
     local passwd_line system_user _ uid _ home shell
 
@@ -423,7 +423,7 @@ is_firewallfalcon_orphan_user() {
     return 1
 }
 
-get_firewallfalcon_orphan_users() {
+get_fixxed_orphan_users() {
     local username
     while IFS=: read -r username _rest; do
         [[ -n "$username" ]] || continue
@@ -433,7 +433,7 @@ get_firewallfalcon_orphan_users() {
     done < /etc/passwd
 }
 
-get_firewallfalcon_known_users() {
+get_fixxed_known_users() {
     local username
     local -A seen_users=()
 
@@ -446,13 +446,13 @@ get_firewallfalcon_known_users() {
 
     while IFS= read -r username; do
         [[ -n "$username" ]] && seen_users["$username"]=1
-    done < <(get_firewallfalcon_orphan_users)
+    done < <(get_fixxed_orphan_users)
 
     (( ${#seen_users[@]} > 0 )) || return 0
     printf "%s\n" "${!seen_users[@]}" | sort
 }
 
-delete_firewallfalcon_user_accounts() {
+delete_fixxed_user_accounts() {
     local -a users_to_delete=("$@")
     local username
 
@@ -465,19 +465,19 @@ delete_firewallfalcon_user_accounts() {
         sleep 0.5
         if id "$username" &>/dev/null; then
             if userdel -rf "$username" &>/dev/null; then
-                echo -e " ✅ System user '${C_YELLOW}$username${C_RESET}' deleted."
+                echo -e " ✅ Usuario del sistema '${C_YELLOW}$username${C_RESET}' eliminado."
             else
                 # Retry after harder kill
                 pkill -9 -u "$username" &>/dev/null
                 sleep 1
                 if userdel -rf "$username" &>/dev/null; then
-                    echo -e " ✅ System user '${C_YELLOW}$username${C_RESET}' deleted (retry)."
+                    echo -e " ✅ Usuario del sistema '${C_YELLOW}$username${C_RESET}' eliminado (retry)."
                 else
-                    echo -e " ❌ Failed to delete system user '${C_YELLOW}$username${C_RESET}'."
+                    echo -e " ❌ No se pudo eliminar el usuario del sistema '${C_YELLOW}$username${C_RESET}'."
                 fi
             fi
         else
-            echo -e " ℹ️ System user '${C_YELLOW}$username${C_RESET}' was already missing. Removing manager data only."
+            echo -e " ℹ️ Usuario del sistema '${C_YELLOW}$username${C_RESET}' Ya faltaba. Se eliminan únicamente los datos del gestor."
         fi
         rm -f "$BANDWIDTH_DIR/${username}.usage"
         rm -f "$BANDWIDTH_DIR/${username}.daily_usage"
@@ -499,35 +499,35 @@ delete_firewallfalcon_user_accounts() {
 
 require_interactive_terminal() {
     if [[ ! -t 0 || ! -t 1 ]]; then
-        echo -e "${C_RED}❌ Error: The FirewallFalcon menu must be run from an interactive terminal.${C_RESET}"
+        echo -e "${C_RED}❌ Error: El menú Fixxed debe ejecutarse desde una terminal interactiva..${C_RESET}"
         exit 1
     fi
 }
 
 initial_setup() {
-    echo -e "${C_BLUE}⚙️ Initializing FirewallFalcon Manager setup...${C_RESET}"
+    echo -e "${C_BLUE}⚙️ Iniciando la configuración de Fixxed Manager...${C_RESET}"
     check_environment
     
     ensure_firewallfalcon_dirs
     ensure_firewallfalcon_system_group
     
-    echo -e "${C_BLUE}🔹 Configuring user limiter service...${C_RESET}"
+    echo -e "${C_BLUE}🔹 Configurando el servicio de limitador de usuarios...${C_RESET}"
     setup_limiter_service
     
-    echo -e "${C_BLUE}🔹 Configuring bandwidth monitoring service...${C_RESET}"
+    echo -e "${C_BLUE}🔹 Configurando el servicio de monitoreo de ancho de banda...${C_RESET}"
     setup_bandwidth_service
     
-    echo -e "${C_BLUE}🔹 Installing trial account cleanup script...${C_RESET}"
+    echo -e "${C_BLUE}🔹 Instalando el script de limpieza de cuentas de prueba...${C_RESET}"
     setup_trial_cleanup_script
     
-    echo -e "${C_BLUE}🔹 Cleaning legacy dynamic SSH banner hooks...${C_RESET}"
+    echo -e "${C_BLUE}🔹 Limpiando los hooks heredados de banners SSH dinámicos...${C_RESET}"
     disable_dynamic_ssh_banner_system
     systemctl reload sshd 2>/dev/null || systemctl reload ssh 2>/dev/null || true
     
     if [ ! -f "$INSTALL_FLAG_FILE" ]; then
         touch "$INSTALL_FLAG_FILE"
     fi
-    echo -e "${C_GREEN}✅ Setup finished.${C_RESET}"
+    echo -e "${C_GREEN}✅ Configuración finalizada.${C_RESET}"
 }
 
 _is_valid_ipv4() {
@@ -547,40 +547,40 @@ check_and_open_firewall_port() {
     if command -v ufw &> /dev/null && ufw status | grep -q "Status: active"; then
         firewall_detected=true
         if ! ufw status | grep -qw "$port/$protocol"; then
-            echo -e "${C_YELLOW}🔥 UFW firewall is active and port ${port}/${protocol} is closed.${C_RESET}"
-            read -p "👉 Do you want to open this port now? (y/n): " confirm
+            echo -e "${C_YELLOW}🔥 El firewall UFW está activo y el puerto ${port}/${protocol} está cerrado.${C_RESET}"
+            read -p "👉 ¿Quieres abrir este puerto ahora? (y/n): " confirm
             if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
                 ufw allow "$port/$protocol"
-                echo -e "${C_GREEN}✅ Port ${port}/${protocol} has been opened in UFW.${C_RESET}"
+                echo -e "${C_GREEN}✅ Puerto ${port}/${protocol} se ha abierto en UFW.${C_RESET}"
             else
-                echo -e "${C_RED}❌ Warning: Port ${port}/${protocol} was not opened. The service may not work correctly.${C_RESET}"
+                echo -e "${C_RED}❌ Advertencia: Puerto ${port}/${protocol} no se abrió. Es posible que el servicio no funcione correctamente.${C_RESET}"
                 return 1
             fi
         else
-             echo -e "${C_GREEN}✅ Port ${port}/${protocol} is already open in UFW.${C_RESET}"
+             echo -e "${C_GREEN}✅ Puerto ${port}/${protocol} Ya está abierto en UFW.${C_RESET}"
         fi
     fi
 
     if command -v firewall-cmd &> /dev/null && systemctl is-active --quiet firewalld; then
         firewall_detected=true
         if ! firewall-cmd --list-ports --permanent | grep -qw "$port/$protocol"; then
-            echo -e "${C_YELLOW}🔥 firewalld is active and port ${port}/${protocol} is not open.${C_RESET}"
-            read -p "👉 Do you want to open this port now? (y/n): " confirm
+            echo -e "${C_YELLOW}🔥 firewalld está activo y el puerto ${port}/${protocol} No está abierto.${C_RESET}"
+            read -p "👉 ¿Quieres abrir este puerto ahora? (y/n): " confirm
             if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
                 firewall-cmd --add-port="$port/$protocol" --permanent
                 firewall-cmd --reload
-                echo -e "${C_GREEN}✅ Port ${port}/${protocol} has been opened in firewalld.${C_RESET}"
+                echo -e "${C_GREEN}✅ Puerto ${port}/${protocol} se ha abierto en firewalld.${C_RESET}"
             else
-                echo -e "${C_RED}❌ Warning: Port ${port}/${protocol} was not opened. The service may not work correctly.${C_RESET}"
+                echo -e "${C_RED}❌ Advertencia: Puerto ${port}/${protocol} no se abrió. Es posible que el servicio no funcione correctamente.${C_RESET}"
                 return 1
             fi
         else
-            echo -e "${C_GREEN}✅ Port ${port}/${protocol} is already open in firewalld.${C_RESET}"
+            echo -e "${C_GREEN}✅ Puerto ${port}/${protocol} ya está abierto en firewalld.${C_RESET}"
         fi
     fi
 
     if ! $firewall_detected; then
-        echo -e "${C_BLUE}ℹ️ No active firewall (UFW or firewalld) detected. Assuming ports are open.${C_RESET}"
+        echo -e "${C_BLUE}ℹ️ No se ha detectado ningún cortafuegos activo (UFW o firewalld). Se asume que los puertos están abiertos.${C_RESET}"
     fi
     return 0
 }
@@ -593,40 +593,40 @@ check_and_open_firewall_port_range() {
     if command -v ufw &> /dev/null && ufw status | grep -q "Status: active"; then
         firewall_detected=true
         if ! ufw status | grep -Fq "$port_range/$protocol"; then
-            echo -e "${C_YELLOW}🔥 UFW firewall is active and range ${port_range}/${protocol} is closed.${C_RESET}"
-            read -p "👉 Do you want to open this port range now? (y/n): " confirm
+            echo -e "${C_YELLOW}🔥 El cortafuegos UFW está activo y el rango ${port_range}/${protocol} está cerrado.${C_RESET}"
+            read -p "👉 ¿Quieres abrir este rango de puertos ahora? (y/n): " confirm
             if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
                 ufw allow "$port_range/$protocol"
-                echo -e "${C_GREEN}✅ Range ${port_range}/${protocol} has been opened in UFW.${C_RESET}"
+                echo -e "${C_GREEN}✅ Rango ${port_range}/${protocol} se ha abierto en UFW.${C_RESET}"
             else
-                echo -e "${C_RED}❌ Warning: Range ${port_range}/${protocol} was not opened. The service may not work correctly.${C_RESET}"
+                echo -e "${C_RED}❌ Advertencia: Rango ${port_range}/${protocol} no se abrió. Es posible que el servicio no funcione correctamente.${C_RESET}"
                 return 1
             fi
         else
-            echo -e "${C_GREEN}✅ Range ${port_range}/${protocol} is already open in UFW.${C_RESET}"
+            echo -e "${C_GREEN}✅ Rango ${port_range}/${protocol} Ya está abierto en UFW.${C_RESET}"
         fi
     fi
 
     if command -v firewall-cmd &> /dev/null && systemctl is-active --quiet firewalld; then
         firewall_detected=true
         if ! firewall-cmd --quiet --query-port="$port_range/$protocol"; then
-            echo -e "${C_YELLOW}🔥 firewalld is active and range ${port_range}/${protocol} is not open.${C_RESET}"
-            read -p "👉 Do you want to open this port range now? (y/n): " confirm
+            echo -e "${C_YELLOW}🔥 firewalld está activo y el rango ${port_range}/${protocol} no está abierto.${C_RESET}"
+            read -p "👉 ¿Quieres abrir este rango de puertos ahora? (y/n): " confirm
             if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
                 firewall-cmd --add-port="$port_range/$protocol" --permanent
                 firewall-cmd --reload
-                echo -e "${C_GREEN}✅ Range ${port_range}/${protocol} has been opened in firewalld.${C_RESET}"
+                echo -e "${C_GREEN}✅ Rango ${port_range}/${protocol} se ha abierto en firewalld.${C_RESET}"
             else
-                echo -e "${C_RED}❌ Warning: Range ${port_range}/${protocol} was not opened. The service may not work correctly.${C_RESET}"
+                echo -e "${C_RED}❌ Advertencia: Rango ${port_range}/${protocol} no se abrió. Es posible que el servicio no funcione correctamente.${C_RESET}"
                 return 1
             fi
         else
-            echo -e "${C_GREEN}✅ Range ${port_range}/${protocol} is already open in firewalld.${C_RESET}"
+            echo -e "${C_GREEN}✅ Rango ${port_range}/${protocol} ya está abierto en firewalld.${C_RESET}"
         fi
     fi
 
     if ! $firewall_detected; then
-        echo -e "${C_BLUE}ℹ️ No active firewall (UFW or firewalld) detected. Assuming range ${port_range}/${protocol} is open.${C_RESET}"
+        echo -e "${C_BLUE}ℹ️ No se ha detectado ningún cortafuegos activo (UFW o firewalld). Se asume el rango. ${port_range}/${protocol} está abierto.${C_RESET}"
     fi
     return 0
 }
@@ -634,7 +634,7 @@ check_and_open_firewall_port_range() {
 check_and_free_ports() {
     local ports_to_check=("$@")
     for port in "${ports_to_check[@]}"; do
-        echo -e "\n${C_BLUE}🔎 Checking if port $port is available...${C_RESET}"
+        echo -e "\n${C_BLUE}🔎 Comprobando si el puerto $port está disponible...${C_RESET}"
         local conflicting_process_info
         conflicting_process_info=$(
             ss -H -lntp "( sport = :$port )" 2>/dev/null
@@ -647,29 +647,29 @@ check_and_free_ports() {
             local conflicting_name
             conflicting_name=$(echo "$conflicting_process_info" | grep -oP 'users:\(\("(\K[^"]+)' | head -n 1)
             
-            echo -e "${C_YELLOW}⚠️ Warning: Port $port is in use by process '${conflicting_name:-unknown}' (PID: ${conflicting_pid:-N/A}).${C_RESET}"
-            read -p "👉 Do you want to attempt to stop this process? (y/n): " kill_confirm
+            echo -e "${C_YELLOW}⚠️ Advertencia: Puerto $port está siendo utilizado por el proceso '${conflicting_name:-unknown}' (PID: ${conflicting_pid:-N/A}).${C_RESET}"
+            read -p "👉 ¿Quieres intentar detener este proceso? (y/n): " kill_confirm
             if [[ "$kill_confirm" == "y" || "$kill_confirm" == "Y" ]]; then
                 if [[ -z "$conflicting_pid" ]]; then
-                    echo -e "${C_RED}❌ Could not determine which PID owns port $port. Please free it manually.${C_RESET}"
+                    echo -e "${C_RED}❌ No se pudo determinar qué PID utiliza el puerto $port. Por favor, libérelo manualmente.${C_RESET}"
                     return 1
                 fi
-                echo -e "${C_GREEN}🛑 Stopping process PID $conflicting_pid...${C_RESET}"
+                echo -e "${C_GREEN}🛑 Proceso de detención PID $conflicting_pid...${C_RESET}"
                 systemctl stop "$(ps -p "$conflicting_pid" -o comm=)" &>/dev/null || kill -9 "$conflicting_pid"
                 sleep 2
                 
                 if ss -H -lntp "( sport = :$port )" 2>/dev/null | grep -q . || ss -H -lunp "( sport = :$port )" 2>/dev/null | grep -q .; then
-                     echo -e "${C_RED}❌ Failed to free port $port. Please handle it manually. Aborting.${C_RESET}"
+                     echo -e "${C_RED}❌ No se pudo liberar el puerto $port. Por favor, hágalo manualmente. Abortando.${C_RESET}"
                      return 1
                 else
-                     echo -e "${C_GREEN}✅ Port $port has been successfully freed.${C_RESET}"
+                     echo -e "${C_GREEN}✅ El puerto $port se ha liberado correctamente.${C_RESET}"
                 fi
             else
-                echo -e "${C_RED}❌ Cannot proceed without freeing port $port. Aborting.${C_RESET}"
+                echo -e "${C_RED}❌ No se puede continuar sin liberar el puerto $port. Abortando.${C_RESET}"
                 return 1
             fi
         else
-            echo -e "${C_GREEN}✅ Port $port is free to use.${C_RESET}"
+            echo -e "${C_GREEN}✅ El puerto $port es de uso gratuito.${C_RESET}"
         fi
     done
     return 0
@@ -679,11 +679,11 @@ setup_limiter_service() {
     # Combined limiter + bandwidth monitoring
     cat > "$LIMITER_SCRIPT" << 'EOF'
 #!/bin/bash
-# FirewallFalcon limiter version 2026-07-23.4
-DB_FILE="/etc/firewallfalcon/users.db"
-BW_DIR="/etc/firewallfalcon/bandwidth"
+# Fixxed limiter version 2026-07-23.4
+DB_FILE="/etc/fixxed/users.db"
+BW_DIR="/etc/fixxed/bandwidth"
 PID_DIR="$BW_DIR/pidtrack"
-BANNER_DIR="/etc/firewallfalcon/banners"
+BANNER_DIR="/etc/fixxed/banners"
 SCAN_INTERVAL=10
 CONN_LOCK_DURATION=60
 
@@ -808,7 +808,7 @@ while true; do
         done < <(passwd -Sa 2>/dev/null)
     fi
 
-    if [[ -f "/etc/firewallfalcon/banners_enabled" ]]; then
+    if [[ -f "/etc/fixxed/banners_enabled" ]]; then
         mkdir -p "$BANNER_DIR"
         dynamic_banners_enabled=true
     fi
@@ -1032,7 +1032,7 @@ EOF
 
     cat > "$LIMITER_SERVICE" << EOF
 [Unit]
-Description=FirewallFalcon Active User Limiter
+Description=Fixxed Active User Limiter
 After=network.target
 
 [Service]
@@ -1051,21 +1051,21 @@ WantedBy=multi-user.target
 EOF
     sed -i 's/\r$//' "$LIMITER_SERVICE" 2>/dev/null
 
-    pkill -f "firewallfalcon-limiter" 2>/dev/null
+    pkill -f "fixxed-limiter" 2>/dev/null
 
-    if ! systemctl is-active --quiet firewallfalcon-limiter; then
+    if ! systemctl is-active --quiet fixxed-limiter; then
         systemctl daemon-reload
-        systemctl enable firewallfalcon-limiter &>/dev/null
-        systemctl start firewallfalcon-limiter --no-block &>/dev/null
+        systemctl enable fixxed-limiter &>/dev/null
+        systemctl start fixxed-limiter --no-block &>/dev/null
         
     else
-        systemctl restart firewallfalcon-limiter --no-block &>/dev/null
+        systemctl restart fixxed-limiter --no-block &>/dev/null
         
     fi
 }
 
 sync_runtime_components_if_needed() {
-    local limiter_marker="# FirewallFalcon limiter version 2026-07-23.8"
+    local limiter_marker="# Fixxed limiter version 2026-07-23.8"
     cleanup_legacy_bandwidth_runtime
     setup_trial_cleanup_script >/dev/null 2>&1
     if [[ ! -f "$LIMITER_SCRIPT" ]] || ! grep -Fqx "$limiter_marker" "$LIMITER_SCRIPT" 2>/dev/null; then
@@ -1074,7 +1074,7 @@ sync_runtime_components_if_needed() {
     if [[ -f "$BADVPN_SERVICE_FILE" ]]; then
         ensure_badvpn_service_is_quiet
     fi
-    if [[ -f "/etc/firewallfalcon/banners_enabled" ]]; then
+    if [[ -f "/etc/fixxed/banners_enabled" ]]; then
         update_ssh_banners_config
     elif [[ -f "$SSHD_FF_CONFIG" ]]; then
         disable_dynamic_ssh_banner_system
@@ -1093,7 +1093,7 @@ cleanup_legacy_bandwidth_runtime() {
 
     systemctl stop firewallfalcon-bandwidth &>/dev/null || true
     systemctl disable firewallfalcon-bandwidth &>/dev/null || true
-    pkill -f "firewallfalcon-bandwidth" &>/dev/null || true
+    pkill -f "fixxed-bandwidth" &>/dev/null || true
 
     if [[ -e "$BANDWIDTH_SERVICE" || -e "$BANDWIDTH_SCRIPT" || -e "$LEGACY_BANDWIDTH_DIR" ]]; then
         rm -f "$BANDWIDTH_SERVICE" "$BANDWIDTH_SCRIPT" 2>/dev/null
@@ -1109,10 +1109,10 @@ cleanup_legacy_bandwidth_runtime() {
 setup_trial_cleanup_script() {
     cat > "$TRIAL_CLEANUP_SCRIPT" << 'TREOF'
 #!/bin/bash
-# FirewallFalcon Trial Account Auto-Cleanup
-# Usage: firewallfalcon-trial-cleanup.sh <username>
-DB_FILE="/etc/firewallfalcon/users.db"
-BW_DIR="/etc/firewallfalcon/bandwidth"
+# Fixxed Trial Account Auto-Cleanup
+# Usage: Fixxed-trial-cleanup.sh <username>
+DB_FILE="/etc/fixxed/users.db"
+BW_DIR="/etc/fixxed/bandwidth"
 
 username="$1"
 if [[ -z "$username" ]]; then exit 1; fi
@@ -1144,8 +1144,8 @@ TREOF
 }
 
 disable_dynamic_ssh_banner_system() {
-    rm -f "/etc/firewallfalcon/banners_enabled" "$SSHD_FF_CONFIG" /usr/local/bin/firewallfalcon-login-info.sh 2>/dev/null
-    rm -rf "/etc/firewallfalcon/banners" 2>/dev/null
+    rm -f "/etc/fixxed/banners_enabled" "$SSHD_FF_CONFIG" /usr/local/bin/firewallfalcon-login-info.sh 2>/dev/null
+    rm -rf "/etc/fixxed/banners" 2>/dev/null
     invalidate_banner_cache
 }
 
@@ -1158,7 +1158,7 @@ is_static_ssh_banner_enabled() {
 }
 
 is_dynamic_ssh_banner_enabled() {
-    [[ -f "/etc/firewallfalcon/banners_enabled" && -f "$SSHD_FF_CONFIG" ]]
+    [[ -f "/etc/fixxed/banners_enabled" && -f "$SSHD_FF_CONFIG" ]]
 }
 
 get_ssh_banner_mode() {
@@ -1180,7 +1180,7 @@ refresh_dynamic_banner_routing_if_enabled() {
 update_ssh_banners_config() {
     local tmp_conf
 
-    if [[ ! -f "/etc/firewallfalcon/banners_enabled" ]]; then
+    if [[ ! -f "/etc/fixxed/banners_enabled" ]]; then
         if [[ -f "$SSHD_FF_CONFIG" ]]; then
             rm -f "$SSHD_FF_CONFIG" 2>/dev/null
             systemctl reload sshd 2>/dev/null || systemctl reload ssh 2>/dev/null
@@ -1190,13 +1190,13 @@ update_ssh_banners_config() {
 
     ensure_firewallfalcon_dirs
     tmp_conf="/tmp/ff_banners_new.conf"
-    echo "# FirewallFalcon - Dynamic per-user SSH banners" > "$tmp_conf"
+    echo "# Fixxed - Dynamic per-user SSH banners" > "$tmp_conf"
 
     if [[ -f "$DB_FILE" ]]; then
         while IFS=: read -r u _rest; do
             [[ -z "$u" || "$u" == \#* ]] && continue
             echo "Match User $u" >> "$tmp_conf"
-            echo "    Banner /etc/firewallfalcon/banners/${u}.txt" >> "$tmp_conf"
+            echo "    Banner /etc/fixxed/banners/${u}.txt" >> "$tmp_conf"
         done < "$DB_FILE"
     fi
 
@@ -1213,8 +1213,8 @@ update_ssh_banners_config() {
 
 setup_ssh_login_info() {
     ensure_firewallfalcon_dirs || return 1
-    if ! touch "/etc/firewallfalcon/banners_enabled"; then
-        echo -e "${C_RED}❌ Failed to enable dynamic SSH banners.${C_RESET}"
+    if ! touch "/etc/fixxed/banners_enabled"; then
+        echo -e "${C_RED}❌ No se pudieron habilitar los banners SSH dinámicos.${C_RESET}"
         return 1
     fi
     disable_static_ssh_banner_in_sshd_config
@@ -1224,19 +1224,19 @@ setup_ssh_login_info() {
 
 
 generate_dns_record() {
-    echo -e "\n${C_BLUE}⚙️ Generating a random domain...${C_RESET}"
+    echo -e "\n${C_BLUE}⚙️ Generar un dominio aleatorio...${C_RESET}"
     if ! command -v jq &> /dev/null; then
-        echo -e "${C_YELLOW}⚠️ jq not found, attempting to install...${C_RESET}"
+        echo -e "${C_YELLOW}⚠️ No se encontró jq; intentando instalarlo....${C_RESET}"
         ff_pkg_install jq >/dev/null 2>&1 || {
-            echo -e "${C_RED}❌ Failed to install jq. Cannot manage DNS records.${C_RESET}"
+            echo -e "${C_RED}❌ No se pudo instalar jq. No es posible gestionar los registros DNS.${C_RESET}"
             return 1
         }
     fi
     local SERVER_IPV4
     SERVER_IPV4=$(curl -s -4 icanhazip.com)
     if ! _is_valid_ipv4 "$SERVER_IPV4"; then
-        echo -e "\n${C_RED}❌ Error: Could not retrieve a valid public IPv4 address from icanhazip.com.${C_RESET}"
-        echo -e "${C_YELLOW}ℹ️ Please check your server's network connection and DNS resolver settings.${C_RESET}"
+        echo -e "\n${C_RED}❌ Error: No se pudo obtener una dirección IPv4 pública válida de icanhazip.com.${C_RESET}"
+        echo -e "${C_YELLOW}ℹ️ Por favor, verifique la conexión de red y la configuración del resolutor DNS de su servidor.${C_RESET}"
         echo -e "   Output received: '$SERVER_IPV4'"
         return 1
     fi
@@ -1244,7 +1244,7 @@ generate_dns_record() {
     local SERVER_IPV6
     SERVER_IPV6=$(curl -s -6 icanhazip.com --max-time 5)
 
-    local RANDOM_SUBDOMAIN="vps-$(tr -dc a-z0-9 < /dev/urandom | head -c 8)"
+    local RANDOM_SUBDOMAIN="tew-$(tr -dc a-z0-9 < /dev/urandom | head -c 8)"
     local FULL_DOMAIN="$RANDOM_SUBDOMAIN.$DESEC_DOMAIN"
     local HAS_IPV6="false"
 
