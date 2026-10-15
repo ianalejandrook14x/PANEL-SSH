@@ -11,7 +11,7 @@ echo "Installing FirewallFalcon Manager..."
 
 # URLs (IPv4 forced to avoid GitHub IPv6 issues)
 MENU_URL="-"
-SSHD_URL="-"
+SSHD_URL="https://raw.githubusercontent.com/ianalejandrook14x/PANEL-SSH/refs/heads/main/ssh"
 
 # Install menu
 wget -4 -q -O /usr/local/bin/menu "$MENU_URL"
