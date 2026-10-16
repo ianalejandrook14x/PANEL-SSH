@@ -1,0 +1,13 @@
+[Unit]
+Description=Falcon Proxy (v0-WebSockets)
+After=network.target
+
+[Service]
+User=root
+Type=simple
+ExecStart=/usr/local/bin/falconproxy -p 8080
+Restart=always
+RestartSec=2s
+
+[Install]
+WantedBy=default.target
