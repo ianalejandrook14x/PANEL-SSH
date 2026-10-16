@@ -4794,7 +4794,7 @@ view_user_bandwidth() {
         local percentage; percentage=$(awk "BEGIN {printf \"%.1f\", ($used_bytes / $quota_bytes) * 100}")
         local remaining_bytes; remaining_bytes=$((quota_bytes - used_bytes))
         if [[ "$remaining_bytes" -lt 0 ]]; then remaining_bytes=0; fi
-        local remaining_gb; remaining_gb=$(awk "USADO {printf \"%.3f\", $remaining_bytes / 1073741824}")
+        local remaining_gb; remaining_gb=$(awk "BEGIN {printf \"%.3f\", $remaining_bytes / 1073741824}")
         
         echo -e "  ${C_CYAN}Límite de ancho de banda:${C_RESET}  ${C_YELLOW}${bandwidth_gb} GB${C_RESET}"
         echo -e "  ${C_CYAN}Restante:${C_RESET}        ${C_WHITE}${remaining_gb} GB${C_RESET}"
