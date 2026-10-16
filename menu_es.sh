@@ -3390,16 +3390,16 @@ uninstall_dnstt() {
 
 install_falcon_proxy() {
     clear; show_banner
-    echo -e "${C_BOLD}${C_PURPLE}--- 🦅 Installing Falcon Proxy (Websockets/Socks) ---${C_RESET}"
+    echo -e "${C_BOLD}${C_PURPLE}--- TewIanIx - (Websockets/Socks) ---${C_RESET}"
     
     if [ -f "$FALCONPROXY_SERVICE_FILE" ]; then
-        echo -e "\n${C_YELLOW}ℹ️ Falcon Proxy is already installed.${C_RESET}"
+        echo -e "\n${C_YELLOW}ℹ️ El protocolo Websocket ya está instalado.${C_RESET}"
         if [ -f "$FALCONPROXY_CONFIG_FILE" ]; then
             source "$FALCONPROXY_CONFIG_FILE"
-            echo -e "   It is configured to run on port(s): ${C_YELLOW}$PORTS${C_RESET}"
-            echo -e "   Installed Version: ${C_YELLOW}${INSTALLED_VERSION:-Unknown}${C_RESET}"
+            echo -e "   Está configurado para ejecutarse en el puerto(s): ${C_YELLOW}$PORTS${C_RESET}"
+            echo -e "   Versión instalada: ${C_YELLOW}${INSTALLED_VERSION:-Unknown}${C_RESET}"
         fi
-        read -p "👉 Do you want to reinstall/update? (y/n): " confirm_reinstall
+        read -p "👉 ¿Quieres reinstalar/actualizar? (y/n): " confirm_reinstall
         if [[ "$confirm_reinstall" != "y" ]]; then return; fi
     fi
 
@@ -3539,59 +3539,59 @@ uninstall_falcon_proxy() {
 # --- ZiVPN Installation Logic ---
 install_zivpn() {
     clear; show_banner
-    echo -e "${C_BOLD}${C_PURPLE}--- 🚀 Installing ZiVPN (UDP/VPN) ---${C_RESET}"
+    echo -e "${C_BOLD}${C_PURPLE}--- 🚀 Instalando ZiVPN (UDP/VPN) ---${C_RESET}"
     
     if [ -f "$ZIVPN_SERVICE_FILE" ]; then
-        echo -e "\n${C_YELLOW}ℹ️ ZiVPN is already installed.${C_RESET}"
+        echo -e "\n${C_YELLOW}ℹ️ ZiVPN ya está instalado.${C_RESET}"
         return
     fi
 
     if [ ! -f "$BADVPN_SERVICE_FILE" ]; then
-        echo -e "\n${C_YELLOW}⚠️ ZiVPN requires the badvpn (udpgw) backend to provide internet access.${C_RESET}"
-        echo -e "${C_GREEN}📦 Automatically installing badvpn backend...${C_RESET}"
+        echo -e "\n${C_YELLOW}⚠️ ZiVPN requiere el backend badvpn (udpgw) para proporcionar acceso a Internet..${C_RESET}"
+        echo -e "${C_GREEN}📦 Instalación automática del backend de badvpn...${C_RESET}"
         sleep 2
         install_badvpn
         clear; show_banner
-        echo -e "${C_BOLD}${C_PURPLE}--- 🚀 Resuming ZiVPN Installation ---${C_RESET}"
+        echo -e "${C_BOLD}${C_PURPLE}--- 🚀 Reanudación de la instalación de ZiVPN ---${C_RESET}"
     fi
 
     check_and_free_ports 5667 || return
     check_and_open_firewall_port 5667 udp || return
     check_and_open_firewall_port_range "6000:19999" udp || return
 
-    echo -e "\n${C_GREEN}⚙️ Checking system architecture...${C_RESET}"
+    echo -e "\n${C_GREEN}⚙️ Comprobación de la arquitectura del sistema...${C_RESET}"
     local arch=$(uname -m)
     local zivpn_url=""
     
     if [[ "$arch" == "x86_64" ]]; then
         zivpn_url="https://github.com/zahidbd2/udp-zivpn/releases/download/udp-zivpn_1.4.9/udp-zivpn-linux-amd64"
-        echo -e "${C_BLUE}ℹ️ Detected AMD64/x86_64 architecture.${C_RESET}"
+        echo -e "${C_BLUE}ℹ️ Arquitectura AMD64/x86_64 detectada.${C_RESET}"
     elif [[ "$arch" == "aarch64" ]]; then
         zivpn_url="https://github.com/zahidbd2/udp-zivpn/releases/download/udp-zivpn_1.4.9/udp-zivpn-linux-arm64"
-        echo -e "${C_BLUE}ℹ️ Detected ARM64 architecture.${C_RESET}"
+        echo -e "${C_BLUE}ℹ️ Arquitectura ARM64 detectada.${C_RESET}"
     elif [[ "$arch" == "armv7l" || "$arch" == "arm" ]]; then
          zivpn_url="https://github.com/zahidbd2/udp-zivpn/releases/download/udp-zivpn_1.4.9/udp-zivpn-linux-arm"
-         echo -e "${C_BLUE}ℹ️ Detected ARM architecture.${C_RESET}"
+         echo -e "${C_BLUE}ℹ️ Arquitectura ARM detectada.${C_RESET}"
     else
-        echo -e "${C_RED}❌ Unsupported architecture: $arch${C_RESET}"
+        echo -e "${C_RED}❌ Arquitectura no compatible: $arch${C_RESET}"
         return
     fi
 
-    echo -e "\n${C_GREEN}📦 Downloading ZiVPN binary...${C_RESET}"
+    echo -e "\n${C_GREEN}📦 Descargando el binario de ZiVPN...${C_RESET}"
     if ! wget -q --show-progress -O "$ZIVPN_BIN" "$zivpn_url"; then
-        echo -e "${C_RED}❌ Download failed. Check internet connection.${C_RESET}"
+        echo -e "${C_RED}❌Error en la descarga. Comprueba la conexión a internet..${C_RESET}"
         return
     fi
     chmod +x "$ZIVPN_BIN"
 
-    echo -e "\n${C_GREEN}⚙️ Configuring ZIVPN...${C_RESET}"
+    echo -e "\n${C_GREEN}⚙️ Configuración de ZIVPN...${C_RESET}"
     mkdir -p "$ZIVPN_DIR"
     
     # Generate Certificates
-    echo -e "${C_BLUE}🔐 Generating self-signed certificates...${C_RESET}"
+    echo -e "${C_BLUE}🔐 Generación de certificados autofirmados...${C_RESET}"
     if ! command -v openssl &>/dev/null; then
         ff_pkg_install openssl >/dev/null 2>&1 || {
-            echo -e "${C_RED}❌ Failed to install openssl for ZiVPN certificate generation.${C_RESET}"
+            echo -e "${C_RED}❌ No se pudo instalar OpenSSL para la generación de certificados de ZiVPN.${C_RESET}"
             return
         }
     fi
@@ -3601,17 +3601,17 @@ install_zivpn() {
         -keyout "$ZIVPN_KEY_FILE" -out "$ZIVPN_CERT_FILE" 2>/dev/null
 
     if [ ! -f "$ZIVPN_CERT_FILE" ]; then
-        echo -e "${C_RED}❌ Failed to generate certificates.${C_RESET}"
+        echo -e "${C_RED}❌ No se pudieron generar los certificados.${C_RESET}"
         return
     fi
 
     # System Tuning
-    echo -e "${C_BLUE}🔧 Tuning system network parameters...${C_RESET}"
+    echo -e "${C_BLUE}🔧 Ajuste de los parámetros de red del sistema...${C_RESET}"
     sysctl -w net.core.rmem_max=16777216 >/dev/null
     sysctl -w net.core.wmem_max=16777216 >/dev/null
 
     # Create Service
-    echo -e "${C_BLUE}📝 Creating systemd service file...${C_RESET}"
+    echo -e "${C_BLUE}📝 Creando un archivo de servicio de systemd...${C_RESET}"
     cat <<EOF > "$ZIVPN_SERVICE_FILE"
 [Unit]
 Description=zivpn VPN Server
@@ -3634,8 +3634,8 @@ WantedBy=multi-user.target
 EOF
 
     # Configure Passwords
-    echo -e "\n${C_YELLOW}🔑 ZiVPN Password Setup${C_RESET}"
-    read -p "👉 Enter passwords separated by commas (e.g., user1,user2) [Default: 'zi']: " input_config
+    echo -e "\n${C_YELLOW}🔑 Configuración de contraseña de ZiVPN${C_RESET}"
+    read -p "👉 Introduce contraseñas separadas por comas (ej, userio1,userio2) [Por defecto: 'zi']: " input_config
     
     if [ -n "$input_config" ]; then
         IFS=',' read -r -a config_array <<< "$input_config"
@@ -3660,13 +3660,13 @@ EOF
 }
 EOF
 
-    echo -e "\n${C_GREEN}🚀 Starting ZiVPN Service...${C_RESET}"
+    echo -e "\n${C_GREEN}🚀 Iniciando el servicio ZiVPN...${C_RESET}"
     systemctl daemon-reload
     systemctl enable zivpn.service
     systemctl start zivpn.service
 
     # Port Forwarding / Firewall
-    echo -e "${C_BLUE}🔥 Configuring Firewall Rules (Redirecting 6000-19999 -> 5667)...${C_RESET}"
+    echo -e "${C_BLUE}🔥 Configuración de reglas del firewall (Redirecting 6000-19999 -> 5667)...${C_RESET}"
     
     # Determine primary interface
     local iface=$(ip -4 route ls | grep default | grep -Po '(?<=dev )(\S+)' | head -1)
@@ -3676,34 +3676,34 @@ EOF
             iptables -t nat -A PREROUTING -i "$iface" -p udp --dport 6000:19999 -j DNAT --to-destination :5667
         # Note: IPTables rules are not persistent by default without iptables-persistent package
     else
-        echo -e "${C_YELLOW}⚠️ Could not detect default interface for IPTables redirection.${C_RESET}"
+        echo -e "${C_YELLOW}⚠️ No se pudo detectar la interfaz predeterminada para la redirección de IPTables..${C_RESET}"
     fi
 
     # Cleanup
     rm -f zi.sh zi2.sh 2>/dev/null
 
     if systemctl is-active --quiet zivpn.service; then
-        echo -e "\n${C_GREEN}✅ ZiVPN Installed Successfully!${C_RESET}"
-        echo -e "   - UDP Port: 5667 (Direct)"
-        echo -e "   - UDP Ports: 6000-19999 (Forwarded)"
+        echo -e "\n${C_GREEN}✅ ¡ZiVPN se ha instalado correctamente!${C_RESET}"
+        echo -e "   - UDP Puerto: 5667 (Directo)"
+        echo -e "   - UDP Puertos: 6000-19999 (Reenviado)"
     else
-        echo -e "\n${C_RED}❌ ZiVPN Service failed to start. Check logs: journalctl -u zivpn.service${C_RESET}"
+        echo -e "\n${C_RED}❌ El servicio ZiVPN no pudo iniciarse. Revise los registros: journalctl -u zivpn.service${C_RESET}"
     fi
 }
 
 uninstall_zivpn() {
     clear; show_banner
-    echo -e "${C_BOLD}${C_PURPLE}--- 🗑️ Uninstall ZiVPN ---${C_RESET}"
+    echo -e "${C_BOLD}${C_PURPLE}--- 🗑️ Desinstalar ZiVPN ---${C_RESET}"
     
     if [ ! -f "$ZIVPN_SERVICE_FILE" ] && [ ! -f "$ZIVPN_BIN" ]; then
-        echo -e "\n${C_YELLOW}ℹ️ ZiVPN does not appear to be installed.${C_RESET}"
+        echo -e "\n${C_YELLOW}ℹ️ ZiVPN no parece estar instalado.${C_RESET}"
         return
     fi
 
-    read -p "👉 Are you sure you want to uninstall ZiVPN? (y/n): " confirm
+    read -p "👉 ¿Estás seguro de que quieres desinstalar ZiVPN? (y/n): " confirm
     if [[ "$confirm" != "y" ]]; then echo -e "${C_YELLOW}Cancelled.${C_RESET}"; return; fi
 
-    echo -e "\n${C_BLUE}🛑 Stopping services...${C_RESET}"
+    echo -e "\n${C_BLUE}🛑 Detención de servicios...${C_RESET}"
     systemctl stop zivpn.service 2>/dev/null
     systemctl disable zivpn.service 2>/dev/null
 
@@ -3713,7 +3713,7 @@ uninstall_zivpn() {
         iptables -t nat -D PREROUTING -i "$iface" -p udp --dport 6000:19999 -j DNAT --to-destination :5667 2>/dev/null || true
     fi
     
-    echo -e "${C_BLUE}🗑️ Removing files...${C_RESET}"
+    echo -e "${C_BLUE}🗑️ Eliminación de archivos...${C_RESET}"
     rm -f "$ZIVPN_SERVICE_FILE"
     rm -rf "$ZIVPN_DIR"
     rm -f "$ZIVPN_BIN"
@@ -3721,39 +3721,39 @@ uninstall_zivpn() {
     systemctl daemon-reload
     
     # Clean cache (from original uninstall script logic)
-    echo -e "${C_BLUE}🧹 Cleaning memory cache...${C_RESET}"
+    echo -e "${C_BLUE}🧹 Limpiando la memoria caché...${C_RESET}"
     sync; echo 3 > /proc/sys/vm/drop_caches
 
-    echo -e "\n${C_GREEN}✅ ZiVPN Uninstalled Successfully.${C_RESET}"
+    echo -e "\n${C_GREEN}✅ ZiVPN desinstalado correctamente.${C_RESET}"
 }
 
 purge_nginx() {
     local mode="$1"
     if [[ "$mode" != "silent" ]]; then
         clear; show_banner
-        echo -e "${C_BOLD}${C_PURPLE}--- 🔥 Purge Internal Nginx Proxy ---${C_RESET}"
+        echo -e "${C_BOLD}${C_PURPLE}--- 🔥 Eliminar el proxy interno de Nginx ---${C_RESET}"
         if ! command -v nginx &> /dev/null; then
             rm -f "$NGINX_PORTS_FILE"
-            echo -e "\n${C_YELLOW}ℹ️ Nginx is not installed. Nothing to do.${C_RESET}"
+            echo -e "\n${C_YELLOW}ℹ️ Nginx no está instalado. Nada que hacer..${C_RESET}"
             return
         fi
-        echo -e "\n${C_YELLOW}⚠️ This removes the internal Nginx proxy on ${NGINX_INTERNAL_HTTP_PORT}/${NGINX_INTERNAL_TLS_PORT}.${C_RESET}"
+        echo -e "\n${C_YELLOW}⚠️ Esto elimina el proxy interno de Nginx en ${NGINX_INTERNAL_HTTP_PORT}/${NGINX_INTERNAL_TLS_PORT}.${C_RESET}"
         if systemctl is-active --quiet haproxy; then
-            echo -e "${C_YELLOW}⚠️ HAProxy will stay installed, but web payload routing from ${EDGE_PUBLIC_HTTP_PORT}/${EDGE_PUBLIC_TLS_PORT} will stop until you reinstall the stack.${C_RESET}"
+            echo -e "${C_YELLOW}⚠️ HAProxy permanecerá instalado, pero el enrutamiento de la carga útil web desde ${EDGE_PUBLIC_HTTP_PORT}/${EDGE_PUBLIC_TLS_PORT} se detendrá hasta que reinstales la pila.${C_RESET}"
         fi
-        read -p "👉 Continue and purge Nginx? (y/n): " confirm
+        read -p "👉 ¿Continuar y eliminar Nginx? (y/n): " confirm
         if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
-            echo -e "\n${C_YELLOW}❌ Uninstallation cancelled.${C_RESET}"
+            echo -e "\n${C_YELLOW}❌ Desinstalación cancelada.${C_RESET}"
             return
         fi
     fi
-    echo -e "\n${C_BLUE}🛑 Stopping Nginx service...${C_RESET}"
+    echo -e "\n${C_BLUE}🛑 Deteniendo el servicio Nginx...${C_RESET}"
     systemctl stop nginx >/dev/null 2>&1
     systemctl disable nginx >/dev/null 2>&1
-    echo -e "\n${C_BLUE}🗑️ Purging Nginx packages...${C_RESET}"
+    echo -e "\n${C_BLUE}🗑️ Eliminar completamente los paquetes de Nginx...${C_RESET}"
     ff_pkg_purge nginx nginx-common >/dev/null 2>&1
     ff_pkg_autoremove
-    echo -e "\n${C_BLUE}🗑️ Removing leftover files...${C_RESET}"
+    echo -e "\n${C_BLUE}🗑️ Eliminación de archivos residuales...${C_RESET}"
     rm -f /etc/ssl/certs/nginx-selfsigned.pem
     rm -f /etc/ssl/private/nginx-selfsigned.key
     rm -rf /etc/nginx
@@ -3763,18 +3763,18 @@ purge_nginx() {
     rm -f "${NGINX_CONFIG_FILE}.bak.firewallfalcon"
     rm -f "$NGINX_PORTS_FILE"
     if [[ "$mode" != "silent" ]]; then
-        echo -e "\n${C_GREEN}✅ Internal Nginx proxy purged. Shared FirewallFalcon certificates were kept.${C_RESET}"
+        echo -e "\n${C_GREEN}✅ Se ha eliminado el proxy interno de Nginx. Se conservaron los certificados compartidos de FirewallFalcon.${C_RESET}"
     fi
 }
 
 install_nginx_proxy() {
     clear; show_banner
-    echo -e "${C_BOLD}${C_PURPLE}--- 🚀 Reconfiguring Internal Nginx Proxy (8880/8443) ---${C_RESET}"
-    echo -e "\n${C_CYAN}This keeps HAProxy on ${EDGE_PUBLIC_HTTP_PORT}/${EDGE_PUBLIC_TLS_PORT} and rewrites the internal Nginx proxy on ${NGINX_INTERNAL_HTTP_PORT}/${NGINX_INTERNAL_TLS_PORT}.${C_RESET}"
+    echo -e "${C_BOLD}${C_PURPLE}--- 🚀 Reconfiguración del proxy interno de Nginx (8880/8443) ---${C_RESET}"
+    echo -e "\n${C_CYAN}Esto mantiene a HAProxy en ${EDGE_PUBLIC_HTTP_PORT}/${EDGE_PUBLIC_TLS_PORT} y redirige al proxy interno Nginx en ${NGINX_INTERNAL_HTTP_PORT}/${NGINX_INTERNAL_TLS_PORT}.${C_RESET}"
 
     if [ ! -s "$SSL_CERT_FILE" ] || [ ! -s "$SSL_CERT_CHAIN_FILE" ] || [ ! -s "$SSL_CERT_KEY_FILE" ]; then
-        echo -e "\n${C_YELLOW}⚠️ No shared FirewallFalcon certificate was found.${C_RESET}"
-        echo -e "${C_DIM}Running the full HAProxy edge installer so the certificate and both services stay aligned.${C_RESET}"
+        echo -e "\n${C_YELLOW}⚠️ No se encontró ningún certificado compartido de FirewallFalcon.${C_RESET}"
+        echo -e "${C_DIM}Ejecutar el instalador completo de HAProxy para el perímetro, de modo que el certificado y ambos servicios permanezcan alineados..${C_RESET}"
         install_ssl_tunnel
         return
     fi
@@ -3802,15 +3802,15 @@ install_nginx_proxy() {
 
     configure_edge_stack "$server_name" || return
 
-    echo -e "\n${C_GREEN}✅ Internal Nginx proxy reconfigured successfully.${C_RESET}"
-    echo -e "   • Public HAProxy edge: ${C_YELLOW}${EDGE_PUBLIC_HTTP_PORT}/${EDGE_PUBLIC_TLS_PORT}${C_RESET}"
-    echo -e "   • Internal Nginx: ${C_YELLOW}${NGINX_INTERNAL_HTTP_PORT}/${NGINX_INTERNAL_TLS_PORT}${C_RESET}"
+    echo -e "\n${C_GREEN}✅ Proxy interno de Nginx reconfigurado correctamente.${C_RESET}"
+    echo -e "   • HAProxy de borde público: ${C_YELLOW}${EDGE_PUBLIC_HTTP_PORT}/${EDGE_PUBLIC_TLS_PORT}${C_RESET}"
+    echo -e "   • Nginx interno: ${C_YELLOW}${NGINX_INTERNAL_HTTP_PORT}/${NGINX_INTERNAL_TLS_PORT}${C_RESET}"
 }
 
 request_certbot_ssl() {
     clear; show_banner
-    echo -e "${C_BOLD}${C_PURPLE}--- 🔒 Shared Certbot Certificate (HAProxy + Nginx) ---${C_RESET}"
-    echo -e "\n${C_DIM}This will replace the shared certificate used by HAProxy on ${EDGE_PUBLIC_TLS_PORT} and internal Nginx on ${NGINX_INTERNAL_TLS_PORT}.${C_RESET}"
+    echo -e "${C_BOLD}${C_PURPLE}--- 🔒 Certificado de Certbot compartido (HAProxy + Nginx) ---${C_RESET}"
+    echo -e "\n${C_DIM}Esto reemplazará el certificado compartido utilizado por HAProxy en ${EDGE_PUBLIC_TLS_PORT} y por el Nginx interno en ${NGINX_INTERNAL_TLS_PORT}.${C_RESET}"
 
     mkdir -p "$DB_DIR" "$SSL_CERT_DIR"
     ensure_edge_stack_packages || return
@@ -3829,24 +3829,24 @@ request_certbot_ssl() {
     fi
 
     if [[ -n "$default_domain" ]]; then
-        read -p "👉 Enter your domain name [$default_domain]: " domain_name
+        read -p "👉 Introduce tu nombre de dominio [$default_domain]: " domain_name
         domain_name=${domain_name:-$default_domain}
     else
-        read -p "👉 Enter your domain name (e.g. vpn.example.com): " domain_name
+        read -p "👉 Introduce tu nombre de dominio (p. ej., tewianix.xyz): " domain_name
     fi
     if [[ -z "$domain_name" ]]; then
-        echo -e "\n${C_RED}❌ Domain name cannot be empty.${C_RESET}"
+        echo -e "\n${C_RED}❌ El nombre de dominio no puede estar vacío.${C_RESET}"
         return
     fi
     if _is_valid_ipv4 "$domain_name"; then
-        echo -e "\n${C_RED}❌ Certbot requires a real domain name, not a raw IP address.${C_RESET}"
+        echo -e "\n${C_RED}❌Certbot requiere un nombre de dominio real, no una dirección IP sin procesar.${C_RESET}"
         return
     fi
 
-    read -p "👉 Enter your email for Let's Encrypt [${EDGE_EMAIL}]: " email
+    read -p "👉 Introduce tu correo electrónico para Let's Encrypt [${EDGE_EMAIL}]: " email
     email=${email:-$EDGE_EMAIL}
     if [[ -z "$email" ]]; then
-        echo -e "\n${C_RED}❌ Email address cannot be empty.${C_RESET}"
+        echo -e "\n${C_RED}❌ La dirección de correo electrónico no puede estar vacía.${C_RESET}"
         return
     fi
 
@@ -3857,14 +3857,14 @@ request_certbot_ssl() {
     configure_edge_stack "$domain_name" || return
 
     echo -e "\n${C_GREEN}✅ Shared Certbot certificate applied successfully.${C_RESET}"
-    echo -e "   • Domain: ${C_YELLOW}${domain_name}${C_RESET}"
-    echo -e "   • Public edge: ${C_YELLOW}${EDGE_PUBLIC_HTTP_PORT}/${EDGE_PUBLIC_TLS_PORT}${C_RESET}"
+    echo -e "   • Dominio: ${C_YELLOW}${domain_name}${C_RESET}"
+    echo -e "   • Borde público: ${C_YELLOW}${EDGE_PUBLIC_HTTP_PORT}/${EDGE_PUBLIC_TLS_PORT}${C_RESET}"
 }
 
 nginx_proxy_menu() {
     while true; do
     show_banner
-    echo -e "${C_BOLD}${C_PURPLE}--- 🌐 Internal Nginx Proxy Management ---${C_RESET}"
+    echo -e "${C_BOLD}${C_PURPLE}--- 🌐 Gestión de proxy interno de Nginx ---${C_RESET}"
 
     local nginx_status="${C_STATUS_I}Inactive${C_RESET}"
     local haproxy_status="${C_STATUS_I}Inactive${C_RESET}"
@@ -3889,21 +3889,21 @@ nginx_proxy_menu() {
     echo -e "\n${C_BOLD}Select an action:${C_RESET}\n"
     
     if systemctl is-active --quiet nginx; then
-         printf "  ${C_CHOICE}[ 1]${C_RESET} %-40s\n" "🛑 Stop Nginx Service"
-         printf "  ${C_CHOICE}[ 2]${C_RESET} %-40s\n" "🔄 Restart HAProxy + Nginx Stack"
-         printf "  ${C_CHOICE}[ 3]${C_RESET} %-40s\n" "⚙️ Re-install/Re-configure Edge Stack"
-         printf "  ${C_CHOICE}[ 4]${C_RESET} %-40s\n" "🔒 Switch/Renew Shared SSL (Certbot)"
-         printf "  ${C_CHOICE}[ 5]${C_RESET} %-40s\n" "🔥 Uninstall/Purge Nginx"
+         printf "  ${C_CHOICE}[ 1]${C_RESET} %-40s\n" "🛑 Detener el servicio Nginx"
+         printf "  ${C_CHOICE}[ 2]${C_RESET} %-40s\n" "🔄 volver a arrancar HAProxy + Nginx Stack"
+         printf "  ${C_CHOICE}[ 3]${C_RESET} %-40s\n" "⚙️ Reinstalar/Reconfigurar Edge Stack"
+         printf "  ${C_CHOICE}[ 4]${C_RESET} %-40s\n" "🔒 Cambiar/Renovar compartido SSL (Certbot)"
+         printf "  ${C_CHOICE}[ 5]${C_RESET} %-40s\n" "🔥 Desinstalar/Eliminar Nginx"
     else
-         printf "  ${C_CHOICE}[ 1]${C_RESET} %-40s\n" "▶️ Start Nginx Service"
-         printf "  ${C_CHOICE}[ 3]${C_RESET} %-40s\n" "⚙️ Install/Configure Edge Stack"
-         printf "  ${C_CHOICE}[ 4]${C_RESET} %-40s\n" "🔒 Switch/Renew Shared SSL (Certbot)"
-         printf "  ${C_CHOICE}[ 5]${C_RESET} %-40s\n" "🔥 Uninstall/Purge Nginx"
+         printf "  ${C_CHOICE}[ 1]${C_RESET} %-40s\n" "▶️ Iniciar el servicio Nginx"
+         printf "  ${C_CHOICE}[ 3]${C_RESET} %-40s\n" "⚙️ Instalar/Configurar Edge Stack"
+         printf "  ${C_CHOICE}[ 4]${C_RESET} %-40s\n" "🔒 Cambiar/Renovar compartido SSL (Certbot)"
+         printf "  ${C_CHOICE}[ 5]${C_RESET} %-40s\n" "🔥 Desinstalar/Eliminar Nginx"
     fi
 
-    echo -e "\n  ${C_WARN}[ 0]${C_RESET} ↩️ Return"
+    echo -e "\n  ${C_WARN}[ 0]${C_RESET} ↩️ Regresar"
     echo
-    if ! read -r -p "$(echo -e ${C_PROMPT}"👉 Select an option: "${C_RESET})" choice; then
+    if ! read -r -p "$(echo -e ${C_PROMPT}"👉 Ingresa una opción: "${C_RESET})" choice; then
         echo
         return
     fi
@@ -3911,25 +3911,25 @@ nginx_proxy_menu() {
     case $choice in
         1) 
             if systemctl is-active --quiet nginx; then
-                echo -e "\n${C_BLUE}🛑 Stopping Nginx...${C_RESET}"
+                echo -e "\n${C_BLUE}🛑 Detención de Nginx...${C_RESET}"
                 systemctl stop nginx
-                echo -e "${C_GREEN}✅ Nginx stopped.${C_RESET}"
+                echo -e "${C_GREEN}✅ Nginx se ha detenido.${C_RESET}"
                 if systemctl is-active --quiet haproxy; then
-                    echo -e "${C_YELLOW}⚠️ HAProxy is still running, but web traffic that depends on internal Nginx will not work until Nginx starts again.${C_RESET}"
+                    echo -e "${C_YELLOW}⚠️ HAProxy sigue en ejecución, pero el tráfico web que depende del Nginx interno no funcionará hasta que Nginx se inicie de nuevo.${C_RESET}"
                 fi
             else
-                echo -e "\n${C_BLUE}▶️ Starting Nginx...${C_RESET}"
+                echo -e "\n${C_BLUE}▶️ Iniciando Nginx...${C_RESET}"
                 systemctl start nginx
                 if systemctl is-active --quiet nginx; then
-                    echo -e "${C_GREEN}✅ Nginx started.${C_RESET}"
+                    echo -e "${C_GREEN}✅ Nginx iniciado.${C_RESET}"
                 else
-                    echo -e "${C_RED}❌ Failed to start Nginx.${C_RESET}"
+                    echo -e "${C_RED}❌ No se pudo iniciar Nginx.${C_RESET}"
                 fi
             fi
             press_enter
             ;;
         2)
-            echo -e "\n${C_BLUE}🔄 Restarting Nginx and HAProxy...${C_RESET}"
+            echo -e "\n${C_BLUE}🔄 Reiniciando Nginx y HAProxy...${C_RESET}"
             local restart_ok=true
             systemctl restart nginx || restart_ok=false
             if command -v haproxy &> /dev/null; then
@@ -3938,9 +3938,9 @@ nginx_proxy_menu() {
                 restart_ok=false
             fi
             if $restart_ok && systemctl is-active --quiet nginx && systemctl is-active --quiet haproxy; then
-                echo -e "${C_GREEN}✅ HAProxy + Nginx stack restarted.${C_RESET}"
+                echo -e "${C_GREEN}✅ HAProxy + Nginx stack reiniciado.${C_RESET}"
             else
-                echo -e "${C_RED}❌ One or more services failed to restart.${C_RESET}"
+                echo -e "${C_RED}❌ Uno o más servicios no pudieron reiniciarse.${C_RESET}"
             fi
             press_enter
             ;;
@@ -3961,113 +3961,113 @@ nginx_proxy_menu() {
 
 install_panel_menu() {
     clear; show_banner
-    echo -e "${C_BOLD}${C_PURPLE}--- 💻 Install X-UI / 3X-UI Panel ---${C_RESET}"
-    echo -e "\n${C_CYAN}Select which panel to install:${C_RESET}\n"
+    echo -e "${C_BOLD}${C_PURPLE}--- 💻 Instalar X-UI / 3X-UI Panel ---${C_RESET}"
+    echo -e "\n${C_CYAN}Seleccione qué panel instalar.:${C_RESET}\n"
     printf "  ${C_CHOICE}[ 1]${C_RESET} %-45s %s\n" "🚀 3X-UI Panel (MHSanaei)" "${C_STATUS_A}⭐ Default${C_RESET}"
     printf "  ${C_CHOICE}[ 2]${C_RESET} %-45s %s\n" "📦 X-UI Panel (alireza0)" ""
-    echo -e "\n  ${C_RED}[ 0]${C_RESET} ❌ Cancel"
+    echo -e "\n  ${C_RED}[ 0]${C_RESET} ❌ Cancelar"
     echo
-    read -p "👉 Select panel [1]: " panel_choice
+    read -p "👉 Seleccionar panel [1]: " panel_choice
     panel_choice=${panel_choice:-1}
     case $panel_choice in
         1) install_3xui_panel ;;
         2) install_xui_panel ;;
-        0) echo -e "\n${C_YELLOW}❌ Installation cancelled.${C_RESET}" ;;
-        *) echo -e "\n${C_RED}❌ Invalid option.${C_RESET}" ;;
+        0) echo -e "\n${C_YELLOW}❌ Instalación cancelada.${C_RESET}" ;;
+        *) echo -e "\n${C_RED}❌ Opción no válida.${C_RESET}" ;;
     esac
 }
 
 install_3xui_panel() {
     clear; show_banner
-    echo -e "${C_BOLD}${C_PURPLE}--- 🚀 Install 3X-UI Panel ---${C_RESET}"
-    echo -e "\nThis will download and run the official installation script for 3X-UI (MHSanaei)."
-    echo -e "Choose an installation option:\n"
-    printf "  ${C_GREEN}[ 1]${C_RESET} %-40s\n" "Install the latest version of 3X-UI"
-    printf "  ${C_GREEN}[ 2]${C_RESET} %-40s\n" "Install a specific version of 3X-UI"
-    echo -e "\n  ${C_RED}[ 0]${C_RESET} ❌ Cancel Installation"
+    echo -e "${C_BOLD}${C_PURPLE}--- 🚀 Instalar 3X-UI Panel ---${C_RESET}"
+    echo -e "\nEsto descargará y ejecutará el script de instalación oficial de 3X-UI (MHSanaei)."
+    echo -e "Elige una opción de instalación:\n"
+    printf "  ${C_GREEN}[ 1]${C_RESET} %-40s\n" "Instala la versión más reciente de 3X-UI"
+    printf "  ${C_GREEN}[ 2]${C_RESET} %-40s\n" "Instalar una versión específica de 3X-UI"
+    echo -e "\n  ${C_RED}[ 0]${C_RESET} ❌ Cancelar instalación"
     echo
-    read -p "👉 Select an option: " choice
+    read -p "👉 Ingresa una opción: " choice
     case $choice in
         1)
-            echo -e "\n${C_BLUE}⚙️ Installing the latest version...${C_RESET}"
+            echo -e "\n${C_BLUE}⚙️ Instalación de la última versión...${C_RESET}"
             bash <(curl -Ls https://raw.githubusercontent.com/mhsanaei/3x-ui/master/install.sh)
             ;;
         2)
             read -p "👉 Enter the version to install (e.g., 2.4.5): " version
             if [[ -z "$version" ]]; then
-                echo -e "\n${C_RED}❌ Version number cannot be empty.${C_RESET}"
+                echo -e "\n${C_RED}❌ El número de versión no puede estar vacío.${C_RESET}"
                 return
             fi
-            echo -e "\n${C_BLUE}⚙️ Installing version ${C_YELLOW}$version...${C_RESET}"
+            echo -e "\n${C_BLUE}⚙️ Instalando versión ${C_YELLOW}$version...${C_RESET}"
             bash <(curl -Ls "https://raw.githubusercontent.com/mhsanaei/3x-ui/v$version/install.sh") "v$version"
             ;;
         0)
-            echo -e "\n${C_YELLOW}❌ Installation cancelled.${C_RESET}"
+            echo -e "\n${C_YELLOW}❌ Instalación cancelada.${C_RESET}"
             ;;
         *)
-            echo -e "\n${C_RED}❌ Invalid option.${C_RESET}"
+            echo -e "\n${C_RED}❌ Opción no válida.${C_RESET}"
             ;;
     esac
 }
 
 install_xui_panel() {
     clear; show_banner
-    echo -e "${C_BOLD}${C_PURPLE}--- 📦 Install X-UI Panel (Legacy) ---${C_RESET}"
-    echo -e "\nThis will download and run the installation script for X-UI (alireza0)."
-    echo -e "Choose an installation option:\n"
-    printf "  ${C_GREEN}[ 1]${C_RESET} %-40s\n" "Install the latest version of X-UI"
-    printf "  ${C_GREEN}[ 2]${C_RESET} %-40s\n" "Install a specific version of X-UI"
-    echo -e "\n  ${C_RED}[ 0]${C_RESET} ❌ Cancel Installation"
+    echo -e "${C_BOLD}${C_PURPLE}--- 📦 Instalar el panel X-UI (versión anterior) ---${C_RESET}"
+    echo -e "\nEsto descargará y ejecutará el script de instalación de X-UI (alireza0)."
+    echo -e "Elige una opción de instalación:\n"
+    printf "  ${C_GREEN}[ 1]${C_RESET} %-40s\n" "Instalar la última versión de X-UI."
+    printf "  ${C_GREEN}[ 2]${C_RESET} %-40s\n" "Instalar una versión específica de X-UI"
+    echo -e "\n  ${C_RED}[ 0]${C_RESET} ❌ Cancelar instalación"
     echo
-    read -p "👉 Select an option: " choice
+    read -p "👉 Ingresa una opción: " choice
     case $choice in
         1)
-            echo -e "\n${C_BLUE}⚙️ Installing the latest version...${C_RESET}"
+            echo -e "\n${C_BLUE}⚙️ Instalación de la última versión...${C_RESET}"
             bash <(curl -Ls https://raw.githubusercontent.com/alireza0/x-ui/master/install.sh)
             ;;
         2)
-            read -p "👉 Enter the version to install (e.g., 1.8.0): " version
+            read -p "👉 Ingrese la versión que desea instalar (e.g., 1.8.0): " version
             if [[ -z "$version" ]]; then
-                echo -e "\n${C_RED}❌ Version number cannot be empty.${C_RESET}"
+                echo -e "\n${C_RED}❌ El número de versión no puede estar vacío.${C_RESET}"
                 return
             fi
-            echo -e "\n${C_BLUE}⚙️ Installing version ${C_YELLOW}$version...${C_RESET}"
+            echo -e "\n${C_BLUE}⚙️ Instalando versión ${C_YELLOW}$version...${C_RESET}"
             VERSION=$version bash <(curl -Ls "https://raw.githubusercontent.com/alireza0/x-ui/$version/install.sh") "$version"
             ;;
         0)
-            echo -e "\n${C_YELLOW}❌ Installation cancelled.${C_RESET}"
+            echo -e "\n${C_YELLOW}❌ Instalación cancelada.${C_RESET}"
             ;;
         *)
-            echo -e "\n${C_RED}❌ Invalid option.${C_RESET}"
+            echo -e "\n${C_RED}❌ Opción no válida.${C_RESET}"
             ;;
     esac
 }
 
 uninstall_xui_panel() {
     clear; show_banner
-    echo -e "${C_BOLD}${C_PURPLE}--- 🗑️ Uninstall X-UI / 3X-UI Panel ---${C_RESET}"
+    echo -e "${C_BOLD}${C_PURPLE}--- 🗑️ Desinstalar X-UI / 3X-UI Panel ---${C_RESET}"
     if ! command -v x-ui &> /dev/null; then
-        echo -e "\n${C_YELLOW}ℹ️ No X-UI/3X-UI panel appears to be installed.${C_RESET}"
+        echo -e "\n${C_YELLOW}ℹ️ No parece haber ningún panel X-UI/3X-UI instalado.${C_RESET}"
         return
     fi
-    read -p "👉 Are you sure you want to thoroughly uninstall X-UI/3X-UI? (y/n): " confirm
+    read -p "👉 ¿Estás seguro de que quieres desinstalar completamente X-UI/3X-UI? (y/n): " confirm
     if [[ "$confirm" == "y" ]]; then
-        echo -e "\n${C_BLUE}⚙️ Running the default uninstaller first...${C_RESET}"
+        echo -e "\n${C_BLUE}⚙️ Ejecutar primero el desinstalador predeterminado...${C_RESET}"
         x-ui uninstall >/dev/null 2>&1
-        echo -e "\n${C_BLUE}🧹 Performing a full cleanup to ensure complete removal...${C_RESET}"
-        echo " - Stopping and disabling x-ui service..."
+        echo -e "\n${C_BLUE}🧹 Realizar una limpieza completa para garantizar la eliminación total.${C_RESET}"
+        echo " - Deteniendo y deshabilitando el servicio x-ui..."
         systemctl stop x-ui >/dev/null 2>&1
         systemctl disable x-ui >/dev/null 2>&1
-        echo " - Removing x-ui files and directories..."
+        echo " - Eliminando archivos y directorios de x-ui..."
         rm -f /etc/systemd/system/x-ui.service
         rm -f /usr/local/bin/x-ui
         rm -rf /usr/local/x-ui/
         rm -rf /etc/x-ui/
         echo " - Reloading systemd daemon..."
         systemctl daemon-reload
-        echo -e "\n${C_GREEN}✅ X-UI/3X-UI has been thoroughly uninstalled.${C_RESET}"
+        echo -e "\n${C_GREEN}✅ X-UI/3X-UI se ha desinstalado por completo.${C_RESET}"
     else
-        echo -e "\n${C_YELLOW}❌ Uninstallation cancelled.${C_RESET}"
+        echo -e "\n${C_YELLOW}❌ Desinstalación cancelada.${C_RESET}"
     fi
 }
 
@@ -4184,7 +4184,7 @@ refresh_banner_cache() {
     if [[ -z "$BANNER_CACHE_OS_NAME" ]]; then
         BANNER_CACHE_OS_NAME=$(grep -oP 'PRETTY_NAME="\K[^"]+' /etc/os-release 2>/dev/null || echo "Linux")
     fi
-    BANNER_CACHE_UP_TIME=$(uptime -p 2>/dev/null | sed 's/up //' || echo "unknown")
+    BANNER_CACHE_UP_TIME=$(uptime -p 2>/dev/null | sed 's/up //' || echo "Desconocido")
     BANNER_CACHE_RAM_USAGE=$(free -m | awk '/^Mem:/{if($2>0){printf "%.2f", $3*100/$2}else{print "0.00"}}')
     BANNER_CACHE_CPU_LOAD=$(awk '{print $1}' /proc/loadavg 2>/dev/null)
     if [[ -s "$DB_FILE" ]]; then
@@ -4203,64 +4203,64 @@ show_banner() {
     refresh_banner_cache
     [[ -t 1 ]] && clear
     echo
-    echo -e "${C_TITLE}   FirewallFalcon Manager ${C_RESET}${C_DIM}| v4.0.0 Premium Edition${C_RESET}"
+    echo -e "${C_TITLE}   TewIaniX Panel ${C_RESET}${C_DIM}| v4.3.0 Fixx${C_RESET}"
     echo -e "${C_BLUE}   ─────────────────────────────────────────────────────────${C_RESET}"
-    printf "   ${C_GRAY}%-10s${C_RESET} %-20s ${C_GRAY}|${C_RESET} %s\n" "OS" "$BANNER_CACHE_OS_NAME" "Uptime: $BANNER_CACHE_UP_TIME"
-    printf "   ${C_GRAY}%-10s${C_RESET} %-20s ${C_GRAY}|${C_RESET} %s\n" "Memory" "${BANNER_CACHE_RAM_USAGE}% Used" "Online Sessions: ${C_WHITE}${BANNER_CACHE_ONLINE_USERS}${C_RESET}"
-    printf "   ${C_GRAY}%-10s${C_RESET} %-20s ${C_GRAY}|${C_RESET} %s\n" "Users" "${BANNER_CACHE_TOTAL_USERS} Managed Accounts" "Sys Load (1m): ${C_GREEN}${BANNER_CACHE_CPU_LOAD}${C_RESET}"
+    printf "   ${C_GRAY}%-10s${C_RESET} %-20s ${C_GRAY}|${C_RESET} %s\n" "OS" "$BANNER_CACHE_OS_NAME" "Actividad: $BANNER_CACHE_UP_TIME"
+    printf "   ${C_GRAY}%-10s${C_RESET} %-20s ${C_GRAY}|${C_RESET} %s\n" "Memoria" "${BANNER_CACHE_RAM_USAGE}% Usado" "Online Sessions: ${C_WHITE}${BANNER_CACHE_ONLINE_USERS}${C_RESET}"
+    printf "   ${C_GRAY}%-10s${C_RESET} %-20s ${C_GRAY}|${C_RESET} %s\n" "Usuario" "${BANNER_CACHE_TOTAL_USERS} Cuentas gestionadas" "Sys Load (1m): ${C_GREEN}${BANNER_CACHE_CPU_LOAD}${C_RESET}"
     echo -e "${C_BLUE}   ─────────────────────────────────────────────────────────${C_RESET}"
 }
 
 protocol_menu() {
     while true; do
         show_banner
-        local badvpn_status; if systemctl is-active --quiet badvpn; then badvpn_status="${C_STATUS_A}(Active)${C_RESET}"; else badvpn_status="${C_STATUS_I}(Inactive)${C_RESET}"; fi
-        local udp_custom_status; if systemctl is-active --quiet udp-custom; then udp_custom_status="${C_STATUS_A}(Active)${C_RESET}"; else udp_custom_status="${C_STATUS_I}(Inactive)${C_RESET}"; fi
-        local zivpn_status; if systemctl is-active --quiet zivpn.service; then zivpn_status="${C_STATUS_A}(Active)${C_RESET}"; else zivpn_status="${C_STATUS_I}(Inactive)${C_RESET}"; fi
+        local badvpn_status; if systemctl is-active --quiet badvpn; then badvpn_status="${C_STATUS_A}(Activo)${C_RESET}"; else badvpn_status="${C_STATUS_I}(Inactivo)${C_RESET}"; fi
+        local udp_custom_status; if systemctl is-active --quiet udp-custom; then udp_custom_status="${C_STATUS_A}(Activo)${C_RESET}"; else udp_custom_status="${C_STATUS_I}(Inactivo)${C_RESET}"; fi
+        local zivpn_status; if systemctl is-active --quiet zivpn.service; then zivpn_status="${C_STATUS_A}(Activo)${C_RESET}"; else zivpn_status="${C_STATUS_I}(Inactivo)${C_RESET}"; fi
         
         local ssl_tunnel_text="HAProxy Edge Stack (80/443)"
-        local ssl_tunnel_status="${C_STATUS_I}(Inactive)${C_RESET}"
+        local ssl_tunnel_status="${C_STATUS_I}(Inactivo)${C_RESET}"
         if systemctl is-active --quiet haproxy; then
-            ssl_tunnel_status="${C_STATUS_A}(Active)${C_RESET}"
+            ssl_tunnel_status="${C_STATUS_A}(Activo)${C_RESET}"
         fi
         
-        local dnstt_status; if systemctl is-active --quiet dnstt.service; then dnstt_status="${C_STATUS_A}(Active)${C_RESET}"; else dnstt_status="${C_STATUS_I}(Inactive)${C_RESET}"; fi
+        local dnstt_status; if systemctl is-active --quiet dnstt.service; then dnstt_status="${C_STATUS_A}(Activo)${C_RESET}"; else dnstt_status="${C_STATUS_I}(Inactivo)${C_RESET}"; fi
         
-        local falconproxy_status="${C_STATUS_I}(Inactive)${C_RESET}"
+        local falconproxy_status="${C_STATUS_I}(Inactivo)${C_RESET}"
         local falconproxy_ports=""
         if systemctl is-active --quiet falconproxy; then
             if [ -f "$FALCONPROXY_CONFIG_FILE" ]; then source "$FALCONPROXY_CONFIG_FILE"; fi
             falconproxy_ports=" ($PORTS)"
-            falconproxy_status="${C_STATUS_A}(Active - ${INSTALLED_VERSION:-latest})${C_RESET}"
+            falconproxy_status="${C_STATUS_A}(Activo - ${INSTALLED_VERSION:-latest})${C_RESET}"
         fi
 
-        local nginx_status; if systemctl is-active --quiet nginx; then nginx_status="${C_STATUS_A}(Active)${C_RESET}"; else nginx_status="${C_STATUS_I}(Inactive)${C_RESET}"; fi
-        local xui_status; if command -v x-ui &> /dev/null; then xui_status="${C_STATUS_A}(Installed)${C_RESET}"; else xui_status="${C_STATUS_I}(Not Installed)${C_RESET}"; fi  # 3X-UI uses same 'x-ui' binary name
+        local nginx_status; if systemctl is-active --quiet nginx; then nginx_status="${C_STATUS_A}(Activo)${C_RESET}"; else nginx_status="${C_STATUS_I}(Inactivo)${C_RESET}"; fi
+        local xui_status; if command -v x-ui &> /dev/null; then xui_status="${C_STATUS_A}(Instalado)${C_RESET}"; else xui_status="${C_STATUS_I}(No Instalado)${C_RESET}"; fi  # 3X-UI uses same 'x-ui' binary name
         
-        echo -e "\n   ${C_TITLE}══════════════[ ${C_BOLD}🔌 PROTOCOL & PANEL MANAGEMENT ${C_RESET}${C_TITLE}]══════════════${C_RESET}"
-        echo -e "     ${C_ACCENT}--- TUNNELLING PROTOCOLS---${C_RESET}"
-        printf "     ${C_CHOICE}[ 1]${C_RESET} %-45s %s\n" "🚀 Install badvpn (UDP 7300)" "$badvpn_status"
-        printf "     ${C_CHOICE}[ 2]${C_RESET} %-45s\n" "🗑️ Uninstall badvpn"
-        printf "     ${C_CHOICE}[ 3]${C_RESET} %-45s %s\n" "🚀 Install udp-custom" "$udp_custom_status"
-        printf "     ${C_CHOICE}[ 4]${C_RESET} %-45s\n" "🗑️ Uninstall udp-custom"
-        printf "     ${C_CHOICE}[ 5]${C_RESET} %-45s %s\n" "🔒 Install ${ssl_tunnel_text}" "$ssl_tunnel_status"
-        printf "     ${C_CHOICE}[ 6]${C_RESET} %-45s\n" "🗑️ Uninstall HAProxy Edge Stack"
-        printf "     ${C_CHOICE}[ 7]${C_RESET} %-45s %s\n" "📡 Install/View DNSTT (Port 53)" "$dnstt_status"
-        printf "     ${C_CHOICE}[ 8]${C_RESET} %-45s\n" "🗑️ Uninstall DNSTT"
-        printf "     ${C_CHOICE}[ 9]${C_RESET} %-45s %s\n" "🦅 Install Falcon Proxy (Select Version)" "$falconproxy_status"
-        printf "     ${C_CHOICE}[10]${C_RESET} %-45s\n" "🗑️ Uninstall Falcon Proxy"
-        printf "     ${C_CHOICE}[11]${C_RESET} %-45s %s\n" "🌐 Install/Manage Internal Nginx (8880/8443)" "$nginx_status"
-        printf "     ${C_CHOICE}[14]${C_RESET} %-45s %s\n" "🛡️ Install ZiVPN (UDP 5667)" "$zivpn_status"
-        printf "     ${C_CHOICE}[15]${C_RESET} %-45s\n" "🗑️ Uninstall ZiVPN"
+        echo -e "\n   ${C_TITLE}══════════════[ ${C_BOLD}🔌 GESTIÓN DE PROTOCOLOS Y PANELES ${C_RESET}${C_TITLE}]══════════════${C_RESET}"
+        echo -e "     ${C_ACCENT}--- PROTOCOLOS DE TUNELIZACIÓN---${C_RESET}"
+        printf "     ${C_CHOICE}[ 1]${C_RESET} %-45s %s\n" "🚀 Instalar badvpn (UDP 7300)" "$badvpn_status"
+        printf "     ${C_CHOICE}[ 2]${C_RESET} %-45s\n" "🗑️ Desinstalar badvpn"
+        printf "     ${C_CHOICE}[ 3]${C_RESET} %-45s %s\n" "🚀 Instalar udp-custom" "$udp_custom_status"
+        printf "     ${C_CHOICE}[ 4]${C_RESET} %-45s\n" "🗑️ Desinstalar udp-custom"
+        printf "     ${C_CHOICE}[ 5]${C_RESET} %-45s %s\n" "🔒 Instalar ${ssl_tunnel_text}" "$ssl_tunnel_status"
+        printf "     ${C_CHOICE}[ 6]${C_RESET} %-45s\n" "🗑️ Desinstalar HAProxy Edge Stack"
+        printf "     ${C_CHOICE}[ 7]${C_RESET} %-45s %s\n" "📡 Instalar/Ver DNSTT (Port 53)" "$dnstt_status"
+        printf "     ${C_CHOICE}[ 8]${C_RESET} %-45s\n" "🗑️ Desinstalar DNSTT"
+        printf "     ${C_CHOICE}[ 9]${C_RESET} %-45s %s\n" "🦅 Instalar Falcon Proxy (Select Version)" "$falconproxy_status"
+        printf "     ${C_CHOICE}[10]${C_RESET} %-45s\n" "🗑️ Desinstalar Falcon Proxy"
+        printf "     ${C_CHOICE}[11]${C_RESET} %-45s %s\n" "🌐 Instalar/Administrar interno Nginx (8880/8443)" "$nginx_status"
+        printf "     ${C_CHOICE}[14]${C_RESET} %-45s %s\n" "🛡️ Instalar ZiVPN (UDP 5667)" "$zivpn_status"
+        printf "     ${C_CHOICE}[15]${C_RESET} %-45s\n" "🗑️ Desinstalar ZiVPN"
         
         echo -e "     ${C_ACCENT}--- 💻 MANAGEMENT PANELS ---${C_RESET}"
-        printf "     ${C_CHOICE}[12]${C_RESET} %-45s %s\n" "💻 Install X-UI / 3X-UI Panel" "$xui_status"
-        printf "     ${C_CHOICE}[13]${C_RESET} %-45s\n" "🗑️ Uninstall X-UI / 3X-UI Panel"
+        printf "     ${C_CHOICE}[12]${C_RESET} %-45s %s\n" "💻 Instalar X-UI / 3X-UI Panel" "$xui_status"
+        printf "     ${C_CHOICE}[13]${C_RESET} %-45s\n" "🗑️ Desinstalar X-UI / 3X-UI Panel"
         
         echo -e "   ${C_DIM}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~${C_RESET}"
-        echo -e "     ${C_WARN}[ 0]${C_RESET} ↩️ Return"
+        echo -e "     ${C_WARN}[ 0]${C_RESET} ↩️ Regresar"
         echo
-        if ! read -r -p "$(echo -e ${C_PROMPT}"👉 Select an option: "${C_RESET})" choice; then
+        if ! read -r -p "$(echo -e ${C_PROMPT}"👉 Ingresa una opción: "${C_RESET})" choice; then
             echo
             return
         fi
@@ -4286,19 +4286,19 @@ protocol_menu() {
 
 install_web_panel() {
     clear; show_banner
-    echo -e "${C_BOLD}${C_PURPLE}--- 🌐 Installing Web Control Panel ---${C_RESET}"
+    echo -e "${C_BOLD}${C_PURPLE}--- 🌐 Instalación del panel de control web ---${C_RESET}"
     
     if [ -f "$PANEL_SERVICE_FILE" ]; then
-        echo -e "\n${C_YELLOW}ℹ️ Web Panel is already installed.${C_RESET}"
+        echo -e "\n${C_YELLOW}ℹ️ El panel web ya está instalado.${C_RESET}"
         show_panel_credentials
         return
     fi
     
     # Check Python 3
     if ! command -v python3 &>/dev/null; then
-        echo -e "${C_RED}❌ Python 3 is required but not installed.${C_RESET}"
-        echo -e "${C_YELLOW}Installing python3...${C_RESET}"
-        ff_pkg_install python3 || { echo -e "${C_RED}❌ Failed to install python3.${C_RESET}"; return; }
+        echo -e "${C_RED}❌ Se requiere Python 3, pero no está instalado..${C_RESET}"
+        echo -e "${C_YELLOW}Instalando python3...${C_RESET}"
+        ff_pkg_install python3 || { echo -e "${C_RED}❌ No se pudo instalar python3.${C_RESET}"; return; }
     fi
     
     echo -e "${C_BLUE}🔎 Checking if port $PANEL_PORT is available...${C_RESET}"
@@ -4315,13 +4315,13 @@ install_web_panel() {
     local panel_secret
     panel_secret="panel_$(tr -dc 'a-z0-9' < /dev/urandom | head -c 8)"
     
-    echo -e "${C_BLUE}📥 Downloading panel files...${C_RESET}"
+    echo -e "${C_BLUE}📥 Descargando archivos del panel...${C_RESET}"
     mkdir -p "$PANEL_HTML_DIR"
     
     # Download backend
     curl -sL "$PANEL_REPO_BASE/panel.py" -o "$PANEL_SCRIPT"
     if [ $? -ne 0 ] || [ ! -s "$PANEL_SCRIPT" ]; then
-        echo -e "${C_RED}❌ Failed to download panel backend.${C_RESET}"
+        echo -e "${C_RED}❌ No se pudo descargar panel backend.${C_RESET}"
         return
     fi
     chmod +x "$PANEL_SCRIPT"
@@ -4330,7 +4330,7 @@ install_web_panel() {
     # Download frontend
     curl -sL "$PANEL_REPO_BASE/index.html" -o "$PANEL_HTML_FILE"
     if [ $? -ne 0 ] || [ ! -s "$PANEL_HTML_FILE" ]; then
-        echo -e "${C_RED}❌ Failed to download panel frontend.${C_RESET}"
+        echo -e "${C_RED}❌ No se pudo descargar panel frontend.${C_RESET}"
         return
     fi
     
@@ -4376,15 +4376,15 @@ SEOF
         
         clear; show_banner
         echo -e "${C_GREEN}=====================================================${C_RESET}"
-        echo -e "${C_GREEN}     ✅ Web Control Panel Installed Successfully!     ${C_RESET}"
+        echo -e "${C_GREEN}     ✅ ¡Panel de control web instalado correctamente!     ${C_RESET}"
         echo -e "${C_GREEN}=====================================================${C_RESET}"
         echo -e "\n${C_CYAN}  🌐 Panel URL:${C_RESET}    ${C_YELLOW}http://${server_ip}:${PANEL_PORT}/${panel_secret}${C_RESET}"
-        echo -e "${C_CYAN}  👤 Username:${C_RESET}     ${C_YELLOW}${panel_user}${C_RESET}"
-        echo -e "${C_CYAN}  🔑 Password:${C_RESET}     ${C_YELLOW}${panel_pass}${C_RESET}"
-        echo -e "${C_CYAN}  🔐 Secret Path:${C_RESET}   ${C_YELLOW}/${panel_secret}${C_RESET}"
-        echo -e "\n${C_DIM}  Save these credentials! You can view them later from option [21] > [3].${C_RESET}"
+        echo -e "${C_CYAN}  👤 Usuario:${C_RESET}     ${C_YELLOW}${panel_user}${C_RESET}"
+        echo -e "${C_CYAN}  🔑 Contraseña:${C_RESET}     ${C_YELLOW}${panel_pass}${C_RESET}"
+        echo -e "${C_CYAN}  🔐 Sendero secreto:${C_RESET}   ${C_YELLOW}/${panel_secret}${C_RESET}"
+        echo -e "\n${C_DIM}  ¡Guarda estas credenciales! Podrás verlas más tarde desde la opción [21] > [3].${C_RESET}"
     else
-        echo -e "\n${C_RED}❌ Panel service failed to start. Checking logs:${C_RESET}"
+        echo -e "\n${C_RED}❌ El servicio del panel no pudo iniciarse. Comprobando los registros.:${C_RESET}"
         journalctl -u firewallfalcon-panel -n 15 --no-pager
     fi
 }
@@ -4392,21 +4392,21 @@ SEOF
 uninstall_web_panel() {
     if [ ! -f "$PANEL_SERVICE_FILE" ]; then
         if [[ "$UNINSTALL_MODE" != "silent" ]]; then
-            echo -e "${C_YELLOW}ℹ️ Web Panel is not installed.${C_RESET}"
+            echo -e "${C_YELLOW}ℹ️ El panel web no está instalado.${C_RESET}"
         fi
         return
     fi
     
     if [[ "$UNINSTALL_MODE" != "silent" ]]; then
-        echo -e "\n${C_BOLD}${C_PURPLE}--- 🗑️ Uninstalling Web Control Panel ---${C_RESET}"
-        read -p "👉 Are you sure you want to uninstall the Web Panel? (y/n): " confirm
+        echo -e "\n${C_BOLD}${C_PURPLE}--- 🗑️ Desinstalación del panel de control web ---${C_RESET}"
+        read -p "👉 ¿Estás seguro de que quieres desinstalar el panel web? (y/n): " confirm
         if [[ "$confirm" != "y" ]]; then
-            echo -e "\n${C_YELLOW}❌ Uninstallation cancelled.${C_RESET}"
+            echo -e "\n${C_YELLOW}❌ Desinstalación cancelada.${C_RESET}"
             return
         fi
     fi
     
-    echo -e "${C_BLUE}🛑 Stopping and removing Web Panel service...${C_RESET}"
+    echo -e "${C_BLUE}🛑 Deteniendo y eliminando el servicio Web Panel...${C_RESET}"
     systemctl stop firewallfalcon-panel &>/dev/null
     systemctl disable firewallfalcon-panel &>/dev/null
     rm -f "$PANEL_SERVICE_FILE"
@@ -4415,54 +4415,54 @@ uninstall_web_panel() {
     rm -f "$PANEL_CONF"
     systemctl daemon-reload
     
-    echo -e "${C_GREEN}✅ Web Panel has been uninstalled.${C_RESET}"
+    echo -e "${C_GREEN}✅ El panel web se ha desinstalado..${C_RESET}"
 }
 
 show_panel_credentials() {
     if [ ! -f "$PANEL_CONF" ]; then
-        echo -e "\n${C_YELLOW}ℹ️ Web Panel is not installed.${C_RESET}"
+        echo -e "\n${C_YELLOW}ℹ️ El panel web no está instalado.${C_RESET}"
         return
     fi
     
     source "$PANEL_CONF"
     local server_ip secret_suffix
-    server_ip=$(curl -s -4 --max-time 3 icanhazip.com 2>/dev/null || echo "YOUR_SERVER_IP")
+    server_ip=$(curl -s -4 --max-time 3 icanhazip.com 2>/dev/null || echo "TU_SERVIDOR_IP")
     secret_suffix=""
     if [[ -n "$PANEL_SECRET" ]]; then
         secret_suffix="/${PANEL_SECRET}"
     fi
     
     echo -e "\n${C_GREEN}=====================================================${C_RESET}"
-    echo -e "${C_GREEN}         🌐 Web Panel Credentials                    ${C_RESET}"
+    echo -e "${C_GREEN}         🌐 Credenciales del panel web                    ${C_RESET}"
     echo -e "${C_GREEN}=====================================================${C_RESET}"
     echo -e "\n${C_CYAN}  🌐 Panel URL:${C_RESET}    ${C_YELLOW}http://${server_ip}:${PANEL_PORT}${secret_suffix}${C_RESET}"
-    echo -e "${C_CYAN}  👤 Username:${C_RESET}     ${C_YELLOW}${PANEL_USER}${C_RESET}"
-    echo -e "${C_CYAN}  🔑 Password:${C_RESET}     ${C_YELLOW}${PANEL_PASS_PLAIN}${C_RESET}"
+    echo -e "${C_CYAN}  👤 Usuario:${C_RESET}     ${C_YELLOW}${PANEL_USER}${C_RESET}"
+    echo -e "${C_CYAN}  🔑 Contraseña:${C_RESET}     ${C_YELLOW}${PANEL_PASS_PLAIN}${C_RESET}"
     if [[ -n "$PANEL_SECRET" ]]; then
-        echo -e "${C_CYAN}  🔐 Secret Path:${C_RESET}   ${C_YELLOW}/${PANEL_SECRET}${C_RESET}"
+        echo -e "${C_CYAN}  🔐 Sendero secreto:${C_RESET}   ${C_YELLOW}/${PANEL_SECRET}${C_RESET}"
     fi
     
     if systemctl is-active --quiet firewallfalcon-panel 2>/dev/null; then
-        echo -e "\n${C_CYAN}  📡 Status:${C_RESET}       ${C_GREEN}🟢 Running${C_RESET}"
+        echo -e "\n${C_CYAN}  📡 Status:${C_RESET}       ${C_GREEN}🟢 Activo${C_RESET}"
     else
-        echo -e "\n${C_CYAN}  📡 Status:${C_RESET}       ${C_RED}🔴 Stopped${C_RESET}"
+        echo -e "\n${C_CYAN}  📡 Status:${C_RESET}       ${C_RED}🔴 Detenido${C_RESET}"
     fi
 }
 
 change_panel_credentials() {
     if [ ! -f "$PANEL_CONF" ]; then
-        echo -e "\n${C_YELLOW}ℹ️ Web Panel is not installed.${C_RESET}"
+        echo -e "\n${C_YELLOW}ℹ️ El panel web no está instalado.${C_RESET}"
         return
     fi
     
     clear; show_banner
-    echo -e "${C_BOLD}${C_PURPLE}--- 🔑 Change Web Panel Credentials & Secret Path ---${C_RESET}"
+    echo -e "${C_BOLD}${C_PURPLE}--- 🔑 Cambiar las credenciales y la ruta secreta del panel web ---${C_RESET}"
     show_panel_credentials
     
     echo ""
-    read -p "👉 Enter new username (or press Enter to keep current): " new_user
-    read -p "🔑 Enter new password (or press Enter to auto-generate): " new_pass
-    read -p "🔐 Enter new secret URL path (e.g., secret123, or press Enter to keep): " new_secret
+    read -p "👉 Ingrese un nuevo nombre de usuario (o Enter para mantener actualizado): " new_user
+    read -p "🔑 Introduce una nueva contraseña (o Enter para generarla automáticamente): " new_pass
+    read -p "🔐 Introduce una nueva ruta URL secreta (ej, secret123; o Enter para mantener la actual): " new_secret
     
     source "$PANEL_CONF"
     
@@ -4471,7 +4471,7 @@ change_panel_credentials() {
     fi
     if [[ -z "$new_pass" ]]; then
         new_pass=$(tr -dc 'A-Za-z0-9@#$' < /dev/urandom | head -c 16)
-        echo -e "${C_GREEN}🔑 Auto-generated password: ${C_YELLOW}$new_pass${C_RESET}"
+        echo -e "${C_GREEN}🔑 Contraseña generada automáticamente: ${C_YELLOW}$new_pass${C_RESET}"
     fi
     if [[ -z "$new_secret" ]]; then
         new_secret="${PANEL_SECRET:-panel_$(tr -dc 'a-z0-9' < /dev/urandom | head -c 8)}"
@@ -4688,7 +4688,7 @@ create_trial_account() {
     
     # Username
     local rand_suffix=$(tr -dc 'a-z0-9' < /dev/urandom | head -c 5)
-    local default_username="trial_${rand_suffix}"
+    local default_username="tew_${rand_suffix}"
     read -p "👤 Nombre de usuario [${default_username}]: " username
     username=${username:-$default_username}
     
@@ -4781,8 +4781,8 @@ view_user_bandwidth() {
         [[ -z "$used_bytes" ]] && used_bytes=0
     fi
     
-    local used_mb; used_mb=$(awk "USADO {printf \"%.2f\", $used_bytes / 1048576}")
-    local used_gb; used_gb=$(awk "USADO {printf \"%.3f\", $used_bytes / 1073741824}")
+    local used_mb; used_mb=$(awk "BEGIN {printf \"%.2f\", $used_bytes / 1048576}")
+    local used_gb; used_gb=$(awk "BEGIN {printf \"%.3f\", $used_bytes / 1073741824}")
     
     echo -e "  ${C_CYAN}Datos utilizados:${C_RESET}        ${C_WHITE}${used_gb} GB${C_RESET} (${used_mb} MB)"
     
@@ -4790,8 +4790,8 @@ view_user_bandwidth() {
         echo -e "  ${C_CYAN}Límite de ancho de banda:${C_RESET}  ${C_GREEN}ilimitado${C_RESET}"
         echo -e "  ${C_CYAN}Estado:${C_RESET}           ${C_GREEN}Sin restricciones de cuotas${C_RESET}"
     else
-        local quota_bytes; quota_bytes=$(awk "USADO {printf \"%.0f\", $bandwidth_gb * 1073741824}")
-        local percentage; percentage=$(awk "USADO {printf \"%.1f\", ($used_bytes / $quota_bytes) * 100}")
+        local quota_bytes; quota_bytes=$(awk "BEGIN {printf \"%.0f\", $bandwidth_gb * 1073741824}")
+        local percentage; percentage=$(awk "BEGIN {printf \"%.1f\", ($used_bytes / $quota_bytes) * 100}")
         local remaining_bytes; remaining_bytes=$((quota_bytes - used_bytes))
         if [[ "$remaining_bytes" -lt 0 ]]; then remaining_bytes=0; fi
         local remaining_gb; remaining_gb=$(awk "USADO {printf \"%.3f\", $remaining_bytes / 1073741824}")
@@ -4802,12 +4802,12 @@ view_user_bandwidth() {
         
         # Progress bar
         local bar_width=30
-        local filled; filled=$(awk "USADO {printf \"%.0f\", ($percentage / 100) * $bar_width}")
+        local filled; filled=$(awk "BEGIN {printf \"%.0f\", ($percentage / 100) * $bar_width}")
         if [[ "$filled" -gt "$bar_width" ]]; then filled=$bar_width; fi
         local empty=$((bar_width - filled))
         local bar_color="$C_GREEN"
-        if (( $(awk "USADO {print ($percentage > 80)}" ) )); then bar_color="$C_RED"
-        elif (( $(awk "USADO {print ($percentage > 50)}" ) )); then bar_color="$C_YELLOW"
+        if (( $(awk "BEGIN {print ($percentage > 80)}" ) )); then bar_color="$C_RED"
+        elif (( $(awk "BEGIN {print ($percentage > 50)}" ) )); then bar_color="$C_YELLOW"
         fi
         printf "  ${C_CYAN}Progreso:${C_RESET}         ${bar_color}["
         for ((i=0; i<filled; i++)); do printf "█"; done
@@ -4824,10 +4824,10 @@ bulk_create_users() {
     clear; show_banner
     echo -e "${C_BOLD}${C_PURPLE}--- 👥 Crear usuarios de forma masiva ---${C_RESET}"
     
-    read -p "👉 Introduce el prefijo del nombre de usuario (ej. 'user'): " prefix
+    read -p "👉 Introduce el prefijo del nombre de usuario (ej. 'usuario'): " prefix
     if [[ -z "$prefix" ]]; then echo -e "\n${C_RED}❌ El prefijo no puede estar vacío.${C_RESET}"; return; fi
     
-    read -p "🔢 How many users to create? " count
+    read -p "🔢 ¿Cuántos usuarios crear? " count
     if ! [[ "$count" =~ ^[0-9]+$ ]] || [[ "$count" -lt 1 ]] || [[ "$count" -gt 100 ]]; then
         echo -e "\n${C_RED}❌ Recuento no válido (1-100).${C_RESET}"; return
     fi
@@ -4851,7 +4851,7 @@ bulk_create_users() {
     local expire_date
     expire_date=$(date -d "+$days days" +%Y-%m-%d)
     local bw_display="Ilimitado"; [[ "$bandwidth_gb" != "0" ]] && bw_display="${bandwidth_gb} GB"
-    local daily_bw_display="Ilimitado"; [[ "$daily_bandwidth_gb" != "0" ]] && daily_bw_display="${daily_bandwidth_gb} GB/Dia"
+    local daily_bw_display="Ilimitado"; [[ "$daily_bandwidth_gb" != "0" ]] && daily_bw_display="${daily_bandwidth_gb} GB/Día"
     ensure_firewallfalcon_system_group
     
     echo -e "\n${C_BLUE}⚙️ Creando $count usuarios con prefijo '${prefix}'...${C_RESET}\n"
