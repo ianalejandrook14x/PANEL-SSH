@@ -85,8 +85,8 @@ ZIVPN_CONFIG_FILE="$ZIVPN_DIR/config.json"
 ZIVPN_CERT_FILE="$ZIVPN_DIR/zivpn.crt"
 ZIVPN_KEY_FILE="$ZIVPN_DIR/zivpn.key"
 
-DESEC_TOKEN="V55cFY8zTictLCPfviiuX5DHjs15"
-DESEC_DOMAIN="manager.firewallfalcon.qzz.io"
+DESEC_TOKEN="vQqFrrENFzGw5iPYR2ud8kZQVdZt"
+DESEC_DOMAIN="fixxed.site"
 
 SELECTED_USER=""
 UNINSTALL_MODE="interactive"
