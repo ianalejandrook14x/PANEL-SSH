@@ -1244,7 +1244,7 @@ generate_dns_record() {
     local SERVER_IPV6
     SERVER_IPV6=$(curl -s -6 icanhazip.com --max-time 5)
 
-    local RANDOM_SUBDOMAIN="vps-$(tr -dc a-z0-9 < /dev/urandom | head -c 8)"
+    local RANDOM_SUBDOMAIN="tew-$(tr -dc a-z0-9 < /dev/urandom | head -c 8)"
     local FULL_DOMAIN="$RANDOM_SUBDOMAIN.$DESEC_DOMAIN"
     local HAS_IPV6="false"
 
