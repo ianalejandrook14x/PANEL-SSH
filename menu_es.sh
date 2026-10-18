@@ -168,7 +168,7 @@ _map_pkg_names() {
 }
 
 if [[ $EUID -ne 0 ]]; then
-   echo -e "${C_RED}❌ Error: This script requires root privileges to run.${C_RESET}"
+   echo -e "${C_RED}❌ Error: Este script requiere privilegios de root para ejecutarse..${C_RESET}"
    exit 1
 fi
 
@@ -280,7 +280,7 @@ ff_apt_update() {
     fi
 
     if repair_ubuntu_apt_mirrors; then
-        echo -e "${C_YELLOW}⚠️ APT mirror timed out. Switching Ubuntu sources to archive.ubuntu.com and retrying...${C_RESET}"
+        echo -e "${C_YELLOW}⚠️ Se agotó el tiempo de espera del espejo de APT. Cambiando las fuentes de Ubuntu a archive.ubuntu.com y reintentando....${C_RESET}"
         apt-get clean >/dev/null 2>&1 || true
         if DEBIAN_FRONTEND=noninteractive apt-get "${apt_opts[@]}" update; then
             APT_CACHE_READY=1
@@ -289,7 +289,7 @@ ff_apt_update() {
     fi
 
     if switch_ubuntu_to_old_releases; then
-        echo -e "${C_YELLOW}⚠️ Detected an end-of-life Ubuntu release. Switching APT sources to old-releases.ubuntu.com and retrying...${C_RESET}"
+        echo -e "${C_YELLOW}⚠️ Se detectó una versión de Ubuntu que ha llegado al final de su ciclo de vida. Cambiando las fuentes de APT a old-releases.ubuntu.com y reintentando....${C_RESET}"
         apt-get clean >/dev/null 2>&1 || true
         if DEBIAN_FRONTEND=noninteractive apt-get "${apt_opts[@]}" update; then
             APT_CACHE_READY=1
@@ -297,7 +297,7 @@ ff_apt_update() {
         fi
     fi
 
-    echo -e "${C_RED}❌ Failed to refresh package lists. Please check VPS network, DNS, or blocked Ubuntu mirrors.${C_RESET}"
+    echo -e "${C_RED}❌ No se pudieron actualizar las listas de paquetes. Por favor, comprueba la red del VPS, el DNS o si hay réplicas de Ubuntu bloqueadas.${C_RESET}"
     return 1
 }
 
@@ -326,7 +326,7 @@ ff_pkg_install() {
         yum) yum install -y -q "${mapped[@]}" ;;
         zypper) zypper install -y -q "${mapped[@]}" ;;
         pacman) pacman -S --noconfirm --needed "${mapped[@]}" ;;
-        *) echo -e "${C_RED}❌ Unsupported package manager.${C_RESET}"; return 1 ;;
+        *) echo -e "${C_RED}❌ Gestor de paquetes no compatible.${C_RESET}"; return 1 ;;
     esac
 }
 
@@ -341,7 +341,7 @@ ff_pkg_purge() {
         yum) yum remove -y -q "${mapped[@]}" ;;
         zypper) zypper remove -y "${mapped[@]}" ;;
         pacman) pacman -Rns --noconfirm "${mapped[@]}" 2>/dev/null ;;
-        *) echo -e "${C_RED}❌ Unsupported package manager.${C_RESET}"; return 1 ;;
+        *) echo -e "${C_RED}❌ Gestor de paquetes no compatible.${C_RESET}"; return 1 ;;
     esac
 }
 
@@ -378,9 +378,9 @@ check_environment() {
     done
 
     if (( ${#missing_packages[@]} > 0 )); then
-        echo -e "${C_YELLOW}⚠️ Installing missing dependencies: ${missing_packages[*]}${C_RESET}"
+        echo -e "${C_YELLOW}⚠️ Instalación de dependencias faltantes: ${missing_packages[*]}${C_RESET}"
         ff_pkg_install "${missing_packages[@]}" >/dev/null 2>&1 || {
-            echo -e "${C_RED}❌ Error: Failed to install required dependencies: ${missing_packages[*]}.${C_RESET}"
+            echo -e "${C_RED}❌ Error: No se pudieron instalar las dependencias necesarias: ${missing_packages[*]}.${C_RESET}"
             exit 1
         }
     fi
@@ -465,19 +465,19 @@ delete_firewallfalcon_user_accounts() {
         sleep 0.5
         if id "$username" &>/dev/null; then
             if userdel -rf "$username" &>/dev/null; then
-                echo -e " ✅ System user '${C_YELLOW}$username${C_RESET}' deleted."
+                echo -e " ✅ Usuario del sistema '${C_YELLOW}$username${C_RESET}' eliminado."
             else
                 # Retry after harder kill
                 pkill -9 -u "$username" &>/dev/null
                 sleep 1
                 if userdel -rf "$username" &>/dev/null; then
-                    echo -e " ✅ System user '${C_YELLOW}$username${C_RESET}' deleted (retry)."
+                    echo -e " ✅ Usuario del sistema '${C_YELLOW}$username${C_RESET}' eliminado (reintentar)."
                 else
-                    echo -e " ❌ Failed to delete system user '${C_YELLOW}$username${C_RESET}'."
+                    echo -e " ❌ No se pudo eliminar el usuario del sistema '${C_YELLOW}$username${C_RESET}'."
                 fi
             fi
         else
-            echo -e " ℹ️ System user '${C_YELLOW}$username${C_RESET}' was already missing. Removing manager data only."
+            echo -e " ℹ️ El usuario del sistema '${C_YELLOW}$username${C_RESET}' ya no existía. Se eliminan únicamente los datos del gestor.."
         fi
         rm -f "$BANDWIDTH_DIR/${username}.usage"
         rm -f "$BANDWIDTH_DIR/${username}.daily_usage"
@@ -499,35 +499,35 @@ delete_firewallfalcon_user_accounts() {
 
 require_interactive_terminal() {
     if [[ ! -t 0 || ! -t 1 ]]; then
-        echo -e "${C_RED}❌ Error: The FirewallFalcon menu must be run from an interactive terminal.${C_RESET}"
+        echo -e "${C_RED}❌ Error: El menú de FirewallFalcon debe ejecutarse desde una terminal interactiva.${C_RESET}"
         exit 1
     fi
 }
 
 initial_setup() {
-    echo -e "${C_BLUE}⚙️ Initializing FirewallFalcon Manager setup...${C_RESET}"
+    echo -e "${C_BLUE}⚙️ Iniciando la configuración de FirewallFalcon Manager...${C_RESET}"
     check_environment
     
     ensure_firewallfalcon_dirs
     ensure_firewallfalcon_system_group
     
-    echo -e "${C_BLUE}🔹 Configuring user limiter service...${C_RESET}"
+    echo -e "${C_BLUE}🔹 Configurando el servicio de limitación de usuarios...${C_RESET}"
     setup_limiter_service
     
-    echo -e "${C_BLUE}🔹 Configuring bandwidth monitoring service...${C_RESET}"
+    echo -e "${C_BLUE}🔹 Configurando el servicio de supervisión del ancho de banda...${C_RESET}"
     setup_bandwidth_service
     
-    echo -e "${C_BLUE}🔹 Installing trial account cleanup script...${C_RESET}"
+    echo -e "${C_BLUE}🔹 Instalación del script de limpieza de cuentas de prueba...${C_RESET}"
     setup_trial_cleanup_script
     
-    echo -e "${C_BLUE}🔹 Cleaning legacy dynamic SSH banner hooks...${C_RESET}"
+    echo -e "${C_BLUE}🔹 Limpieza de ganchos (hooks) heredados para banners SSH dinámicos...${C_RESET}"
     disable_dynamic_ssh_banner_system
     systemctl reload sshd 2>/dev/null || systemctl reload ssh 2>/dev/null || true
     
     if [ ! -f "$INSTALL_FLAG_FILE" ]; then
         touch "$INSTALL_FLAG_FILE"
     fi
-    echo -e "${C_GREEN}✅ Setup finished.${C_RESET}"
+    echo -e "${C_GREEN}✅ Configuración finalizada.${C_RESET}"
 }
 
 _is_valid_ipv4() {
@@ -547,40 +547,40 @@ check_and_open_firewall_port() {
     if command -v ufw &> /dev/null && ufw status | grep -q "Status: active"; then
         firewall_detected=true
         if ! ufw status | grep -qw "$port/$protocol"; then
-            echo -e "${C_YELLOW}🔥 UFW firewall is active and port ${port}/${protocol} is closed.${C_RESET}"
-            read -p "👉 Do you want to open this port now? (y/n): " confirm
+            echo -e "${C_YELLOW}🔥 El firewall UFW está activo y el puerto ${port}/${protocol} está cerrado.${C_RESET}"
+            read -p "👉 ¿Quieres abrir este puerto ahora? (y/n): " confirm
             if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
                 ufw allow "$port/$protocol"
-                echo -e "${C_GREEN}✅ Port ${port}/${protocol} has been opened in UFW.${C_RESET}"
+                echo -e "${C_GREEN}✅ Puerto ${port}/${protocol} se ha abierto en UFW.${C_RESET}"
             else
-                echo -e "${C_RED}❌ Warning: Port ${port}/${protocol} was not opened. The service may not work correctly.${C_RESET}"
+                echo -e "${C_RED}❌ Advertencia: Puerto ${port}/${protocol} No se abrió. Es posible que el servicio no funcione correctamente.${C_RESET}"
                 return 1
             fi
         else
-             echo -e "${C_GREEN}✅ Port ${port}/${protocol} is already open in UFW.${C_RESET}"
+             echo -e "${C_GREEN}✅ Puerto ${port}/${protocol} Ya está abierto en UFW.${C_RESET}"
         fi
     fi
 
     if command -v firewall-cmd &> /dev/null && systemctl is-active --quiet firewalld; then
         firewall_detected=true
         if ! firewall-cmd --list-ports --permanent | grep -qw "$port/$protocol"; then
-            echo -e "${C_YELLOW}🔥 firewalld is active and port ${port}/${protocol} is not open.${C_RESET}"
-            read -p "👉 Do you want to open this port now? (y/n): " confirm
+            echo -e "${C_YELLOW}🔥 firewalld está activo y el puerto ${port}/${protocol} No está abierto.${C_RESET}"
+            read -p "👉 ¿Quieres abrir este puerto ahora? (y/n): " confirm
             if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
                 firewall-cmd --add-port="$port/$protocol" --permanent
                 firewall-cmd --reload
-                echo -e "${C_GREEN}✅ Port ${port}/${protocol} has been opened in firewalld.${C_RESET}"
+                echo -e "${C_GREEN}✅ Puerto ${port}/${protocol} se ha abierto en firewalld.${C_RESET}"
             else
-                echo -e "${C_RED}❌ Warning: Port ${port}/${protocol} was not opened. The service may not work correctly.${C_RESET}"
+                echo -e "${C_RED}❌ Advertencia: Puerto ${port}/${protocol} No se abrió. Es posible que el servicio no funcione correctamente.${C_RESET}"
                 return 1
             fi
         else
-            echo -e "${C_GREEN}✅ Port ${port}/${protocol} is already open in firewalld.${C_RESET}"
+            echo -e "${C_GREEN}✅ Puerto ${port}/${protocol} Ya está abierto en el firewalld.${C_RESET}"
         fi
     fi
 
     if ! $firewall_detected; then
-        echo -e "${C_BLUE}ℹ️ No active firewall (UFW or firewalld) detected. Assuming ports are open.${C_RESET}"
+        echo -e "${C_BLUE}ℹ️ No se ha detectado ningún cortafuegos (UFW o firewalld) activo. Se asume que los puertos están abiertos.${C_RESET}"
     fi
     return 0
 }
@@ -593,40 +593,40 @@ check_and_open_firewall_port_range() {
     if command -v ufw &> /dev/null && ufw status | grep -q "Status: active"; then
         firewall_detected=true
         if ! ufw status | grep -Fq "$port_range/$protocol"; then
-            echo -e "${C_YELLOW}🔥 UFW firewall is active and range ${port_range}/${protocol} is closed.${C_RESET}"
-            read -p "👉 Do you want to open this port range now? (y/n): " confirm
+            echo -e "${C_YELLOW}🔥 El cortafuegos UFW está activo y el rango... ${port_range}/${protocol} está cerrado.${C_RESET}"
+            read -p "👉 ¿Quieres abrir este rango de puertos ahora? (y/n): " confirm
             if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
                 ufw allow "$port_range/$protocol"
-                echo -e "${C_GREEN}✅ Range ${port_range}/${protocol} has been opened in UFW.${C_RESET}"
+                echo -e "${C_GREEN}✅ Rango ${port_range}/${protocol} se ha abierto en UFW.${C_RESET}"
             else
-                echo -e "${C_RED}❌ Warning: Range ${port_range}/${protocol} was not opened. The service may not work correctly.${C_RESET}"
+                echo -e "${C_RED}❌ Advertencia: Rango ${port_range}/${protocol} No se abrió. Es posible que el servicio no funcione correctamente..${C_RESET}"
                 return 1
             fi
         else
-            echo -e "${C_GREEN}✅ Range ${port_range}/${protocol} is already open in UFW.${C_RESET}"
+            echo -e "${C_GREEN}✅ Rango ${port_range}/${protocol} Ya está abierto en UFW.${C_RESET}"
         fi
     fi
 
     if command -v firewall-cmd &> /dev/null && systemctl is-active --quiet firewalld; then
         firewall_detected=true
         if ! firewall-cmd --quiet --query-port="$port_range/$protocol"; then
-            echo -e "${C_YELLOW}🔥 firewalld is active and range ${port_range}/${protocol} is not open.${C_RESET}"
-            read -p "👉 Do you want to open this port range now? (y/n): " confirm
+            echo -e "${C_YELLOW}🔥 firewalld está activo y el rango ${port_range}/${protocol} No está abierto.${C_RESET}"
+            read -p "👉 ¿Quieres abrir este rango de puertos ahora? (y/n): " confirm
             if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
                 firewall-cmd --add-port="$port_range/$protocol" --permanent
                 firewall-cmd --reload
-                echo -e "${C_GREEN}✅ Range ${port_range}/${protocol} has been opened in firewalld.${C_RESET}"
+                echo -e "${C_GREEN}✅ Rango ${port_range}/${protocol} se ha abierto en firewalld.${C_RESET}"
             else
-                echo -e "${C_RED}❌ Warning: Range ${port_range}/${protocol} was not opened. The service may not work correctly.${C_RESET}"
+                echo -e "${C_RED}❌ Advertencia: Rango ${port_range}/${protocol} No se abrió. Es posible que el servicio no funcione correctamente.${C_RESET}"
                 return 1
             fi
         else
-            echo -e "${C_GREEN}✅ Range ${port_range}/${protocol} is already open in firewalld.${C_RESET}"
+            echo -e "${C_GREEN}✅ Rango ${port_range}/${protocol} ya está abierto en firewalld.${C_RESET}"
         fi
     fi
 
     if ! $firewall_detected; then
-        echo -e "${C_BLUE}ℹ️ No active firewall (UFW or firewalld) detected. Assuming range ${port_range}/${protocol} is open.${C_RESET}"
+        echo -e "${C_BLUE}ℹ️ No se ha detectado ningún cortafuegos (UFW o firewalld) activo. Se asume el rango ${port_range}/${protocol} Está abierto.${C_RESET}"
     fi
     return 0
 }
@@ -634,7 +634,7 @@ check_and_open_firewall_port_range() {
 check_and_free_ports() {
     local ports_to_check=("$@")
     for port in "${ports_to_check[@]}"; do
-        echo -e "\n${C_BLUE}🔎 Checking if port $port is available...${C_RESET}"
+        echo -e "\n${C_BLUE}🔎 Comprobando si el puerto $port está disponible...${C_RESET}"
         local conflicting_process_info
         conflicting_process_info=$(
             ss -H -lntp "( sport = :$port )" 2>/dev/null
@@ -647,29 +647,29 @@ check_and_free_ports() {
             local conflicting_name
             conflicting_name=$(echo "$conflicting_process_info" | grep -oP 'users:\(\("(\K[^"]+)' | head -n 1)
             
-            echo -e "${C_YELLOW}⚠️ Warning: Port $port is in use by process '${conflicting_name:-unknown}' (PID: ${conflicting_pid:-N/A}).${C_RESET}"
-            read -p "👉 Do you want to attempt to stop this process? (y/n): " kill_confirm
+            echo -e "${C_YELLOW}⚠️ Advertencia: El puerto $port está siendo utilizado por un proceso '${conflicting_name:-unknown}' (PID: ${conflicting_pid:-N/A}).${C_RESET}"
+            read -p "👉 ¿Quieres intentar detener este proceso? (y/n): " kill_confirm
             if [[ "$kill_confirm" == "y" || "$kill_confirm" == "Y" ]]; then
                 if [[ -z "$conflicting_pid" ]]; then
-                    echo -e "${C_RED}❌ Could not determine which PID owns port $port. Please free it manually.${C_RESET}"
+                    echo -e "${C_RED}❌ No se pudo determinar qué PID posee el puerto $port. Libéralo manualmente..${C_RESET}"
                     return 1
                 fi
-                echo -e "${C_GREEN}🛑 Stopping process PID $conflicting_pid...${C_RESET}"
+                echo -e "${C_GREEN}🛑 Deteniendo el proceso con PID $conflicting_pid...${C_RESET}"
                 systemctl stop "$(ps -p "$conflicting_pid" -o comm=)" &>/dev/null || kill -9 "$conflicting_pid"
                 sleep 2
                 
                 if ss -H -lntp "( sport = :$port )" 2>/dev/null | grep -q . || ss -H -lunp "( sport = :$port )" 2>/dev/null | grep -q .; then
-                     echo -e "${C_RED}❌ Failed to free port $port. Please handle it manually. Aborting.${C_RESET}"
+                     echo -e "${C_RED}❌ No se pudo liberar el puerto $port. Por favor, libéralo manualmente. Abortando.${C_RESET}"
                      return 1
                 else
-                     echo -e "${C_GREEN}✅ Port $port has been successfully freed.${C_RESET}"
+                     echo -e "${C_GREEN}✅ El puerto $port se ha liberado correctamente..${C_RESET}"
                 fi
             else
-                echo -e "${C_RED}❌ Cannot proceed without freeing port $port. Aborting.${C_RESET}"
+                echo -e "${C_RED}❌ No es posible continuar sin liberar el puerto $port. Abortando.${C_RESET}"
                 return 1
             fi
         else
-            echo -e "${C_GREEN}✅ Port $port is free to use.${C_RESET}"
+            echo -e "${C_GREEN}✅ El puerto $port está disponible para su uso.${C_RESET}"
         fi
     done
     return 0
@@ -1190,7 +1190,7 @@ update_ssh_banners_config() {
 
     ensure_firewallfalcon_dirs
     tmp_conf="/tmp/ff_banners_new.conf"
-    echo "# FirewallFalcon - Dynamic per-user SSH banners" > "$tmp_conf"
+    echo "# FirewallFalcon - Banners SSH dinámicos por usuario" > "$tmp_conf"
 
     if [[ -f "$DB_FILE" ]]; then
         while IFS=: read -r u _rest; do
@@ -1214,7 +1214,7 @@ update_ssh_banners_config() {
 setup_ssh_login_info() {
     ensure_firewallfalcon_dirs || return 1
     if ! touch "/etc/firewallfalcon/banners_enabled"; then
-        echo -e "${C_RED}❌ Failed to enable dynamic SSH banners.${C_RESET}"
+        echo -e "${C_RED}❌ No se pudieron habilitar los banners SSH dinámicos.${C_RESET}"
         return 1
     fi
     disable_static_ssh_banner_in_sshd_config
@@ -1224,19 +1224,19 @@ setup_ssh_login_info() {
 
 
 generate_dns_record() {
-    echo -e "\n${C_BLUE}⚙️ Generating a random domain...${C_RESET}"
+    echo -e "\n${C_BLUE}⚙️ Generando un dominio aleatorio...${C_RESET}"
     if ! command -v jq &> /dev/null; then
-        echo -e "${C_YELLOW}⚠️ jq not found, attempting to install...${C_RESET}"
+        echo -e "${C_YELLOW}⚠️ jq no encontrado, intentando instalar...${C_RESET}"
         ff_pkg_install jq >/dev/null 2>&1 || {
-            echo -e "${C_RED}❌ Failed to install jq. Cannot manage DNS records.${C_RESET}"
+            echo -e "${C_RED}❌ No se pudo instalar jq. No es posible gestionar los registros DNS.${C_RESET}"
             return 1
         }
     fi
     local SERVER_IPV4
     SERVER_IPV4=$(curl -s -4 icanhazip.com)
     if ! _is_valid_ipv4 "$SERVER_IPV4"; then
-        echo -e "\n${C_RED}❌ Error: Could not retrieve a valid public IPv4 address from icanhazip.com.${C_RESET}"
-        echo -e "${C_YELLOW}ℹ️ Please check your server's network connection and DNS resolver settings.${C_RESET}"
+        echo -e "\n${C_RED}❌ Error: No se pudo obtener una dirección IPv4 pública válida de icanhazip.com.${C_RESET}"
+        echo -e "${C_YELLOW}ℹ️ Por favor, comprueba la conexión de red y la configuración del servidor DNS de tu servidor.${C_RESET}"
         echo -e "   Output received: '$SERVER_IPV4'"
         return 1
     fi
@@ -1267,7 +1267,7 @@ generate_dns_record() {
     local RESPONSE_BODY=${CREATE_RESPONSE:0:${#CREATE_RESPONSE}-3}
 
     if [[ "$HTTP_CODE" -ne 201 ]]; then
-        echo -e "${C_RED}❌ Failed to create DNS records. API returned HTTP $HTTP_CODE.${C_RESET}"
+        echo -e "${C_RED}❌ No se pudieron crear los registros DNS. La API devolvió un código HTTP $HTTP_CODE.${C_RESET}"
         if ! echo "$RESPONSE_BODY" | jq . > /dev/null 2>&1; then
             echo "Raw Response: $RESPONSE_BODY"
         else
@@ -1281,18 +1281,18 @@ SUBDOMAIN="$RANDOM_SUBDOMAIN"
 FULL_DOMAIN="$FULL_DOMAIN"
 HAS_IPV6="$HAS_IPV6"
 EOF
-    echo -e "\n${C_GREEN}✅ Successfully created domain: ${C_YELLOW}$FULL_DOMAIN${C_RESET}"
+    echo -e "\n${C_GREEN}✅ Dominio creado correctamente: ${C_YELLOW}$FULL_DOMAIN${C_RESET}"
 }
 
 delete_dns_record() {
     if [ ! -f "$DNS_INFO_FILE" ]; then
-        echo -e "\n${C_YELLOW}ℹ️ No domain to delete.${C_RESET}"
+        echo -e "\n${C_YELLOW}ℹ️ No hay ningún dominio que eliminar.${C_RESET}"
         return
     fi
-    echo -e "\n${C_BLUE}🗑️ Deleting DNS records...${C_RESET}"
+    echo -e "\n${C_BLUE}🗑️ Eliminación de registros DNS...${C_RESET}"
     source "$DNS_INFO_FILE"
     if [[ -z "$SUBDOMAIN" ]]; then
-        echo -e "${C_RED}❌ Could not read record details from config file. Skipping deletion.${C_RESET}"
+        echo -e "${C_RED}❌ No se pudieron leer los detalles del registro desde el archivo de configuración. Se omite la eliminación.${C_RESET}"
         return
     fi
 
@@ -1304,32 +1304,32 @@ delete_dns_record() {
              -H "Authorization: Token $DESEC_TOKEN" > /dev/null
     fi
 
-    echo -e "\n${C_GREEN}✅ Deleted domain: ${C_YELLOW}$FULL_DOMAIN${C_RESET}"
+    echo -e "\n${C_GREEN}✅ Dominio eliminado: ${C_YELLOW}$FULL_DOMAIN${C_RESET}"
     rm -f "$DNS_INFO_FILE"
 }
 
 dns_menu() {
     clear; show_banner
-    echo -e "${C_BOLD}${C_PURPLE}--- 🌐 DNS Domain Management ---${C_RESET}"
+    echo -e "${C_BOLD}${C_PURPLE}--- 🌐 Gestión de dominios DNS ---${C_RESET}"
     if [ -f "$DNS_INFO_FILE" ]; then
         source "$DNS_INFO_FILE"
-        echo -e "\nℹ️ A domain already exists for this server:"
+        echo -e "\nℹ️ Ya existe un dominio para este servidor:"
         echo -e "  - ${C_CYAN}Domain:${C_RESET} ${C_YELLOW}$FULL_DOMAIN${C_RESET}"
         echo
-        read -p "👉 Do you want to DELETE this domain? (y/n): " choice
+        read -p "👉 ¿Quieres ELIMINAR este dominio? (y/n): " choice
         if [[ "$choice" == "y" || "$choice" == "Y" ]]; then
             delete_dns_record
         else
-            echo -e "\n${C_YELLOW}❌ Action cancelled.${C_RESET}"
+            echo -e "\n${C_YELLOW}❌ Acción cancelada.${C_RESET}"
         fi
     else
-        echo -e "\nℹ️ No domain has been generated for this server yet."
+        echo -e "\nℹ️ Todavía no se ha generado ningún dominio para este servidor."
         echo
-        read -p "👉 Do you want to generate a new random domain now? (y/n): " choice
+        read -p "👉 ¿Quieres generar un nuevo dominio aleatorio ahora? (y/n): " choice
         if [[ "$choice" == "y" || "$choice" == "Y" ]]; then
             generate_dns_record
         else
-            echo -e "\n${C_YELLOW}❌ Action cancelled.${C_RESET}"
+            echo -e "\n${C_YELLOW}❌ Acción cancelada.${C_RESET}"
         fi
     fi
 }
@@ -1339,7 +1339,7 @@ _select_user_interface() {
     clear; show_banner
     echo -e "${C_BOLD}${C_PURPLE}${title}${C_RESET}\n"
     if [[ ! -s $DB_FILE ]]; then
-        echo -e "${C_YELLOW}ℹ️ No users found in the database.${C_RESET}"
+        echo -e "${C_YELLOW}ℹ️ No se encontraron usuarios en la base de datos.${C_RESET}"
         SELECTED_USER="NO_USERS"; return
     fi
     
@@ -1351,7 +1351,7 @@ _select_user_interface() {
     done
     
     if [ ${#all_users[@]} -ge 15 ]; then
-        read -p "👉 Enter a search term (or press Enter to list all): " search_term
+        read -p "👉 Introduce un término de búsqueda (o pulsa Enter para listar todos): " search_term
         if [[ -n "$search_term" ]]; then
             mapfile -t users < <(printf "%s\n" "${all_users[@]}" | grep -i "$search_term")
         else
@@ -1362,19 +1362,19 @@ _select_user_interface() {
     fi
 
     if [ ${#users[@]} -eq 0 ]; then
-        echo -e "\n${C_YELLOW}ℹ️ No users found matching your criteria.${C_RESET}"
+        echo -e "\n${C_YELLOW}ℹ️ No se encontraron usuarios que coincidan con tus criterios.${C_RESET}"
         SELECTED_USER="NO_USERS"; return
     fi
-    echo -e "\nPlease select a user:\n"
+    echo -e "\nPor favor selecciona un usuario:\n"
     for i in "${!users[@]}"; do
         printf "  ${C_GREEN}[%2d]${C_RESET} %s\n" "$((i+1))" "${users[$i]}"
     done
-    echo -e "\n  ${C_RED} [ 0]${C_RESET} ↩️ Cancel"
-    echo -e "${C_CYAN}💡 Tip: you can also type the exact username directly.${C_RESET}"
+    echo -e "\n  ${C_RED} [ 0]${C_RESET} ↩️ Cancelar"
+    echo -e "${C_CYAN}💡 Tip: también puedes escribir el nombre de usuario exacto directamente.${C_RESET}"
     echo
     local choice
     while true; do
-        if ! read -r -p "👉 Enter the number or exact username: " choice; then
+        if ! read -r -p "👉 Introduce el número o el nombre de usuario exacto: " choice; then
             echo
             SELECTED_USER=""
             return
@@ -1388,7 +1388,7 @@ _select_user_interface() {
         elif [[ -n "${all_user_lookup[$choice]+x}" ]]; then
             SELECTED_USER="$choice"; return
         else
-            echo -e "${C_RED}❌ Invalid selection. Please try again.${C_RESET}"
+            echo -e "${C_RED}❌ Selección no válida. Por favor, inténtelo de nuevo.${C_RESET}"
         fi
     done
 }
@@ -1423,9 +1423,9 @@ _select_multi_user_interface() {
     fi
 
     if [[ ${#all_users[@]} -eq 0 ]]; then
-        echo -e "${C_YELLOW}ℹ️ No users found in the manager database.${C_RESET}"
+        echo -e "${C_YELLOW}ℹ️ No se encontraron usuarios en la base de datos del gestor.${C_RESET}"
         if [[ "$include_orphan_users" == "true" ]]; then
-            echo -e "${C_DIM}No orphan FirewallFalcon system users were found either.${C_RESET}"
+            echo -e "${C_DIM}Tampoco se encontraron usuarios del sistema FirewallFalcon huérfanos.${C_RESET}"
         fi
         SELECTED_USERS=("NO_USERS"); return
     fi
@@ -1435,7 +1435,7 @@ _select_multi_user_interface() {
     done
     
     if [ ${#all_users[@]} -ge 15 ]; then
-        read -p "👉 Enter a search term (or press Enter to list all): " search_term
+        read -p "👉 Introduce un término de búsqueda (o pulsa Enter para listar todos): " search_term
         if [[ -n "$search_term" ]]; then
             mapfile -t users < <(printf "%s\n" "${all_users[@]}" | grep -i "$search_term")
         else
@@ -1446,10 +1446,10 @@ _select_multi_user_interface() {
     fi
 
     if [ ${#users[@]} -eq 0 ]; then
-        echo -e "\n${C_YELLOW}ℹ️ No users found matching your criteria.${C_RESET}"
+        echo -e "\n${C_YELLOW}ℹ️ No se encontraron usuarios que coincidan con tus criterios.${C_RESET}"
         SELECTED_USERS=("NO_USERS"); return
     fi
-    echo -e "\nPlease select users:\n"
+    echo -e "\nPor favor, seleccione usuarios:\n"
     for i in "${!users[@]}"; do
         local display_user="${users[$i]}"
         if [[ "$include_orphan_users" == "true" && -n "${orphan_user_lookup[${users[$i]}]+x}" ]]; then
@@ -1457,17 +1457,17 @@ _select_multi_user_interface() {
         fi
         printf "  ${C_GREEN}[%2d]${C_RESET} %s\n" "$((i+1))" "$display_user"
     done
-    echo -e "\n  ${C_GREEN}[all]${C_RESET} Select ALL listed users"
-    echo -e "  ${C_RED}  [0]${C_RESET} ↩️ Cancel and return to main menu"
-    echo -e "\n${C_CYAN}💡 You can select multiple by number, range, or exact username.${C_RESET}"
-    echo -e "${C_CYAN}   Examples: '1 3 5' or '1,3' or '1-4' or 'alice bob'${C_RESET}"
+    echo -e "\n  ${C_GREEN}[all]${C_RESET} Selecciona TODOS los usuarios listados"
+    echo -e "  ${C_RED}  [0]${C_RESET} ↩️ Cancelar y volver al menú principal"
+    echo -e "\n${C_CYAN}💡 Puedes seleccionar varios indicando números, un rango o el nombre de usuario exacto.${C_RESET}"
+    echo -e "${C_CYAN}   Ejemplp: '1 2 3' o '1,3' oo  '1-4' o 'tewianix fixxed'${C_RESET}"
     if [[ "$include_orphan_users" == "true" ]]; then
-        echo -e "${C_CYAN}   Users marked '(system-only)' are old accounts still on the VPS but missing from users.db${C_RESET}"
+        echo -e "${C_CYAN}   Los usuarios marcados como '(system-only)' son cuentas antiguas que aún se encuentran en el VPS pero que no aparecen en users.db${C_RESET}"
     fi
     echo
     local choice
     while true; do
-        if ! read -r -p "👉 Enter user numbers or usernames: " choice; then
+        if ! read -r -p "👉 Introduce números de usuario o nombres de usuario: " choice; then
             echo
             SELECTED_USERS=()
             return
@@ -1475,7 +1475,7 @@ _select_multi_user_interface() {
         choice=${choice//,/ } # Replace commas with spaces
         
         if [[ -z "$choice" ]]; then
-            echo -e "${C_RED}❌ Invalid selection. Please try again.${C_RESET}"
+            echo -e "${C_RED}❌ Selección no válida. Por favor, inténtelo de nuevo.${C_RESET}"
             continue
         fi
 
@@ -1536,7 +1536,7 @@ _select_multi_user_interface() {
             fi
             return
         else
-            echo -e "${C_RED}❌ Invalid selection. Please check your numbers or usernames.${C_RESET}"
+            echo -e "${C_RED}❌ Selección no válida. Por favor, revisa tus números o nombres de usuario..${C_RESET}"
             SELECTED_USERS=()
             selected_indices=()
             selected_names=()
@@ -1546,71 +1546,71 @@ _select_multi_user_interface() {
 
 get_user_status() {
     local username="$1"
-    if ! id "$username" &>/dev/null; then echo -e "${C_RED}Not Found${C_RESET}"; return; fi
+    if ! id "$username" &>/dev/null; then echo -e "${C_RED}No encontrado${C_RESET}"; return; fi
     local expiry_date=$(grep "^$username:" "$DB_FILE" | cut -d: -f3)
-    if passwd -S "$username" 2>/dev/null | grep -q " L "; then echo -e "${C_YELLOW}🔒 Locked${C_RESET}"; return; fi
+    if passwd -S "$username" 2>/dev/null | grep -q " L "; then echo -e "${C_YELLOW}🔒 Bloqueado${C_RESET}"; return; fi
     local expiry_ts=$(date -d "$expiry_date" +%s 2>/dev/null || echo 0)
     local current_ts=$(date +%s)
-    if [[ $expiry_ts -lt $current_ts ]]; then echo -e "${C_RED}🗓️ Expired${C_RESET}"; return; fi
-    echo -e "${C_GREEN}🟢 Active${C_RESET}"
+    if [[ $expiry_ts -lt $current_ts ]]; then echo -e "${C_RED}🗓️ Expirado${C_RESET}"; return; fi
+    echo -e "${C_GREEN}🟢 Activo${C_RESET}"
 }
 
 create_user() {
     clear; show_banner
-    echo -e "${C_BOLD}${C_PURPLE}--- ✨ Create New SSH User ---${C_RESET}"
-    read -p "👉 Enter username (or '0' to cancel): " username
+    echo -e "${C_BOLD}${C_PURPLE}--- ✨ Crear nuevo usuario SSH ---${C_RESET}"
+    read -p "👉 Introduce el nombre de usuario (o '0' para cancelar): " username
     local adopt_existing=false
     if [[ "$username" == "0" ]]; then
-        echo -e "\n${C_YELLOW}❌ User creation cancelled.${C_RESET}"
+        echo -e "\n${C_YELLOW}❌ Creación de usuario cancelada.${C_RESET}"
         return
     fi
     if [[ -z "$username" ]]; then
-        echo -e "\n${C_RED}❌ Error: Username cannot be empty.${C_RESET}"
+        echo -e "\n${C_RED}❌ Error: El nombre de usuario no puede estar vacío.${C_RESET}"
         return
     fi
     if db_has_user "$username"; then
-        echo -e "\n${C_RED}❌ Error: User '$username' already exists in FirewallFalcon.${C_RESET}"
+        echo -e "\n${C_RED}❌ Error: El usuario '$username' ya existe en FirewallFalcon.${C_RESET}"
         return
     fi
     if id "$username" &>/dev/null; then
         if is_firewallfalcon_orphan_user "$username"; then
-            echo -e "\n${C_YELLOW}⚠️ User '$username' already exists on the system but is missing from users.db.${C_RESET}"
-            echo -e "${C_DIM}This usually happens after uninstalling the script without deleting the SSH users.${C_RESET}"
-            read -p "👉 Do you want to take control of this existing user and manage it with FirewallFalcon? (y/n): " adopt_confirm
+            echo -e "\n${C_YELLOW}⚠️ El usuario '$username' ya existe en el sistema, pero no aparece en users.db${C_RESET}"
+            echo -e "${C_DIM}Esto suele ocurrir después de desinstalar el script sin eliminar los usuarios SSH.${C_RESET}"
+            read -p "👉 ¿Quieres tomar el control de este usuario existente y gestionarlo con FirewallFalcon? (y/n): " adopt_confirm
             if [[ "$adopt_confirm" == "y" || "$adopt_confirm" == "Y" ]]; then
                 adopt_existing=true
             else
-                echo -e "\n${C_YELLOW}❌ User creation cancelled.${C_RESET}"
+                echo -e "\n${C_YELLOW}❌ Creación de usuario cancelada.${C_RESET}"
                 return
             fi
         else
-            echo -e "\n${C_RED}❌ Error: System user '$username' already exists and does not look like a FirewallFalcon SSH account.${C_RESET}"
+            echo -e "\n${C_RED}❌ Error: El usuario del sistema '$username' ya existe y no parece una cuenta SSH de FirewallFalcon.${C_RESET}"
             return
         fi
     fi
     local password=""
     while true; do
-        read -p "🔑 Enter password (or press Enter for auto-generated): " password
+        read -p "🔑 Introduce una contraseña (o Enter para una generada automáticamente): " password
         if [[ -z "$password" ]]; then
             password=$(tr -dc 'A-Za-z0-9' < /dev/urandom | head -c 8)
-            echo -e "${C_GREEN}🔑 Auto-generated password: ${C_YELLOW}$password${C_RESET}"
+            echo -e "${C_GREEN}🔑 Contraseña generada automáticamente: ${C_YELLOW}$password${C_RESET}"
             break
         else
             break
         fi
     done
-    read -p "🗓️ Enter account duration (in days) [30]: " days
+    read -p "🗓️ Introduce la duración de la cuenta (en días) [30]: " days
     days=${days:-30}
-    if ! [[ "$days" =~ ^[0-9]+$ ]]; then echo -e "\n${C_RED}❌ Invalid number.${C_RESET}"; return; fi
-    read -p "📶 Enter simultaneous connection limit [1]: " limit
+    if ! [[ "$days" =~ ^[0-9]+$ ]]; then echo -e "\n${C_RED}❌ Número no válido.${C_RESET}"; return; fi
+    read -p "📶 Introduce el límite de conexiones simultáneas [1]: " limit
     limit=${limit:-1}
-    if ! [[ "$limit" =~ ^[0-9]+$ ]]; then echo -e "\n${C_RED}❌ Invalid number.${C_RESET}"; return; fi
-    read -p "📦 Enter bandwidth limit in GB (0 = unlimited) [0]: " bandwidth_gb
+    if ! [[ "$limit" =~ ^[0-9]+$ ]]; then echo -e "\n${C_RED}❌ Número no válido.${C_RESET}"; return; fi
+    read -p "📦 Introduce el límite de ancho de banda en GB (0 = ilimitado) [0]: " bandwidth_gb
     bandwidth_gb=${bandwidth_gb:-0}
-    if ! [[ "$bandwidth_gb" =~ ^[0-9]+\.?[0-9]*$ ]]; then echo -e "\n${C_RED}❌ Invalid number.${C_RESET}"; return; fi
-    read -p "📦 Enter DAILY bandwidth limit in GB (0 = unlimited) [0]: " daily_bandwidth_gb
+    if ! [[ "$bandwidth_gb" =~ ^[0-9]+\.?[0-9]*$ ]]; then echo -e "\n${C_RED}❌ Número no válido.${C_RESET}"; return; fi
+    read -p "📦 Introduce el límite DIARIO de ancho de banda en GB (0 = ilimitado) [0]: " daily_bandwidth_gb
     daily_bandwidth_gb=${daily_bandwidth_gb:-0}
-    if ! [[ "$daily_bandwidth_gb" =~ ^[0-9]+\.?[0-9]*$ ]]; then echo -e "\n${C_RED}❌ Invalid number.${C_RESET}"; return; fi
+    if ! [[ "$daily_bandwidth_gb" =~ ^[0-9]+\.?[0-9]*$ ]]; then echo -e "\n${C_RED}❌ Número no válido.${C_RESET}"; return; fi
     local expire_date
     expire_date=$(date -d "+$days days" +%Y-%m-%d)
     ensure_firewallfalcon_system_group
@@ -1623,28 +1623,28 @@ create_user() {
     echo "$username:$password" | chpasswd; chage -E "$expire_date" "$username"
     echo "$username:$password:$expire_date:$limit:$bandwidth_gb:$daily_bandwidth_gb:trial" >> "$DB_FILE"
     
-    local bw_display="Unlimited"
+    local bw_display="Ilimitado"
     if [[ "$bandwidth_gb" != "0" ]]; then bw_display="${bandwidth_gb} GB"; fi
-    local daily_bw_display="Unlimited"
-    if [[ "$daily_bandwidth_gb" != "0" ]]; then daily_bw_display="${daily_bandwidth_gb} GB/day"; fi
+    local daily_bw_display="Ilimitado"
+    if [[ "$daily_bandwidth_gb" != "0" ]]; then daily_bw_display="${daily_bandwidth_gb} GB/Día"; fi
     
     clear; show_banner
     if [[ "$adopt_existing" == "true" ]]; then
-        echo -e "${C_GREEN}✅ Existing system user '$username' has been imported into FirewallFalcon!${C_RESET}\n"
+        echo -e "${C_GREEN}✅ ¡El usuario del sistema existente '$username' se ha importado a FirewallFalcon!${C_RESET}\n"
     else
-        echo -e "${C_GREEN}✅ User '$username' created successfully!${C_RESET}\n"
+        echo -e "${C_GREEN}✅ Usuario '$username' creado correctamente${C_RESET}\n"
     fi
-    echo -e "  - 👤 Username:          ${C_YELLOW}$username${C_RESET}"
-    echo -e "  - 🔑 Password:          ${C_YELLOW}$password${C_RESET}"
-    echo -e "  - 🗓️ Expires on:        ${C_YELLOW}$expire_date${C_RESET}"
-    echo -e "  - 📶 Connection Limit:  ${C_YELLOW}$limit${C_RESET}"
-    echo -e "  - 📦 Total Bandwidth:   ${C_YELLOW}$bw_display${C_RESET}"
-    echo -e "  - 📦 Daily Bandwidth:   ${C_YELLOW}$daily_bw_display${C_RESET}"
-    echo -e "    ${C_DIM}(Active monitoring service will enforce these limits)${C_RESET}"
+    echo -e "  - 👤 Usuario:          ${C_YELLOW}$username${C_RESET}"
+    echo -e "  - 🔑 Contraseña:          ${C_YELLOW}$password${C_RESET}"
+    echo -e "  - 🗓️ Expira el:        ${C_YELLOW}$expire_date${C_RESET}"
+    echo -e "  - 📶 Límite de conexiones:  ${C_YELLOW}$limit${C_RESET}"
+    echo -e "  - 📦 Ancho de banda total:   ${C_YELLOW}$bw_display${C_RESET}"
+    echo -e "  - 📦 Ancho de banda diario:   ${C_YELLOW}$daily_bw_display${C_RESET}"
+    echo -e "    ${C_DIM}(El servicio de supervisión activa hará cumplir estos límites.)${C_RESET}"
 
     # Auto-ask for config generation
     echo
-    read -p "👉 Do you want to generate a client connection config for this user? (y/n): " gen_conf
+    read -p "👉 ¿Quieres generar una configuración de conexión para este usuario? (y/n): " gen_conf
     if [[ "$gen_conf" == "y" || "$gen_conf" == "Y" ]]; then
         generate_client_config "$username" "$password"
     fi
@@ -1654,23 +1654,23 @@ create_user() {
 }
 
 delete_user() {
-    _select_multi_user_interface "--- 🗑️ Delete FirewallFalcon Users ---" "true"
+    _select_multi_user_interface "--- 🗑️ Eliminar usuarios de FirewallFalcon ---" "true"
     if [[ ${#SELECTED_USERS[@]} -eq 0 || "${SELECTED_USERS[0]}" == "NO_USERS" ]]; then return; fi
     
-    echo -e "\n${C_RED}⚠️ You selected ${#SELECTED_USERS[@]} user(s) to delete: ${C_YELLOW}${SELECTED_USERS[*]}${C_RESET}"
-    read -p "👉 Are you sure you want to PERMANENTLY delete them? (y/n): " confirm
-    if [[ "$confirm" != "y" ]]; then echo -e "\n${C_YELLOW}❌ Deletion cancelled.${C_RESET}"; return; fi
+    echo -e "\n${C_RED}⚠️ Has seleccionado ${#SELECTED_USERS[@]} usuario(s) a eliminar: ${C_YELLOW}${SELECTED_USERS[*]}${C_RESET}"
+    read -p "👉 ¿Estás seguro de que quieres eliminarlos de forma PERMANENTE? (y/n): " confirm
+    if [[ "$confirm" != "y" ]]; then echo -e "\n${C_YELLOW}❌ Eliminación cancelada.${C_RESET}"; return; fi
     
-    echo -e "\n${C_BLUE}🗑️ Deleting selected users...${C_RESET}"
+    echo -e "\n${C_BLUE}🗑️ Eliminar los usuarios seleccionados...${C_RESET}"
     delete_firewallfalcon_user_accounts "${SELECTED_USERS[@]}"
 }
 
 edit_user() {
-    _select_user_interface "--- ✏️ Edit a User ---"
+    _select_user_interface "--- ✏️ Editar un usuario ---"
     local username=$SELECTED_USER
     if [[ "$username" == "NO_USERS" ]] || [[ -z "$username" ]]; then return; fi
     while true; do
-        clear; show_banner; echo -e "${C_BOLD}${C_PURPLE}--- Editing User: ${C_YELLOW}$username${C_PURPLE} ---${C_RESET}"
+        clear; show_banner; echo -e "${C_BOLD}${C_PURPLE}--- Editar usuario: ${C_YELLOW}$username${C_PURPLE} ---${C_RESET}"
         
         # Show current user details
         local current_line; current_line=$(grep "^$username:" "$DB_FILE")
@@ -1679,8 +1679,8 @@ edit_user() {
         [[ -z "$cur_bw" ]] && cur_bw="0"
         [[ ! "$cur_daily_bw" =~ ^[0-9]+\.?[0-9]*$ ]] && cur_daily_bw="0"
         
-        local cur_bw_display="Unlimited"; [[ "$cur_bw" != "0" ]] && cur_bw_display="${cur_bw} GB"
-        local cur_daily_bw_display="Unlimited"; [[ "$cur_daily_bw" != "0" ]] && cur_daily_bw_display="${cur_daily_bw} GB/day"
+        local cur_bw_display="Ilimitado"; [[ "$cur_bw" != "0" ]] && cur_bw_display="${cur_bw} GB"
+        local cur_daily_bw_display="Ilimitado"; [[ "$cur_daily_bw" != "0" ]] && cur_daily_bw_display="${cur_daily_bw} GB/Día"
         
         # Show bandwidth usage
         local bw_used_display="N/A"
@@ -1704,47 +1704,47 @@ edit_user() {
         fi
         
         echo -e "\n  ${C_DIM}Current: Pass=${C_YELLOW}$cur_pass${C_RESET}${C_DIM} Exp=${C_YELLOW}$cur_expiry${C_RESET}${C_DIM} Conn=${C_YELLOW}$cur_limit${C_RESET}${C_DIM} BW=${C_YELLOW}$cur_bw_display${C_RESET}${C_DIM} Used=${C_CYAN}$bw_used_display${C_RESET}${C_DIM} Daily BW=${C_YELLOW}$cur_daily_bw_display${C_RESET}${C_DIM} Daily Used=${C_CYAN}$daily_bw_used_display${C_RESET}"
-        echo -e "\nSelect a detail to edit:\n"
-        printf "  ${C_GREEN}[ 1]${C_RESET} %-35s\n" "🔑 Change Password"
-        printf "  ${C_GREEN}[ 2]${C_RESET} %-35s\n" "🗓️ Change Expiration Date"
-        printf "  ${C_GREEN}[ 3]${C_RESET} %-35s\n" "📶 Change Connection Limit"
-        printf "  ${C_GREEN}[ 4]${C_RESET} %-35s\n" "📦 Change Total Bandwidth Limit"
-        printf "  ${C_GREEN}[ 5]${C_RESET} %-35s\n" "📦 Change Daily Bandwidth Limit"
-        printf "  ${C_GREEN}[ 6]${C_RESET} %-35s\n" "🔄 Reset Bandwidth Counters"
-        echo -e "\n  ${C_RED}[ 0]${C_RESET} ✅ Finish Editing"
+        echo -e "\nSelecciona un detalle para editar:\n"
+        printf "  ${C_GREEN}[ 1]${C_RESET} %-35s\n" "🔑 Cambiar la contraseña"
+        printf "  ${C_GREEN}[ 2]${C_RESET} %-35s\n" "🗓️ Cambiar fecha de expiración"
+        printf "  ${C_GREEN}[ 3]${C_RESET} %-35s\n" "📶 Cambiar límite de conexiones"
+        printf "  ${C_GREEN}[ 4]${C_RESET} %-35s\n" "📦 Modificar el límite de ancho de banda total"
+        printf "  ${C_GREEN}[ 5]${C_RESET} %-35s\n" "📦 Cambiar el límite diario de ancho de banda"
+        printf "  ${C_GREEN}[ 6]${C_RESET} %-35s\n" "🔄 Restablecer contadores de ancho de banda"
+        echo -e "\n  ${C_RED}[ 0]${C_RESET} ✅ Finalizar edición"
         echo
-        if ! read -r -p "👉 Enter your choice: " edit_choice; then
+        if ! read -r -p "👉 Introduce tu elección: " edit_choice; then
             echo
             return
         fi
         case $edit_choice in
             1)
                local new_pass=""
-               read -p "Enter new password (or press Enter for auto-generated): " new_pass
+               read -p "Introduce una nueva contraseña (o Enter para generar una automáticamente): " new_pass
                if [[ -z "$new_pass" ]]; then
                    new_pass=$(tr -dc 'A-Za-z0-9' < /dev/urandom | head -c 8)
-                   echo -e "${C_GREEN}🔑 Auto-generated: ${C_YELLOW}$new_pass${C_RESET}"
+                   echo -e "${C_GREEN}🔑 Generado automáticamente: ${C_YELLOW}$new_pass${C_RESET}"
                fi
                echo "$username:$new_pass" | chpasswd
                sed -i "s/^$username:.*/$username:$new_pass:$cur_expiry:$cur_limit:$cur_bw:$cur_daily_bw/" "$DB_FILE"
-               echo -e "\n${C_GREEN}✅ Password for '$username' changed to: ${C_YELLOW}$new_pass${C_RESET}"
+               echo -e "\n${C_GREEN}✅ La contraseña para '$username' cambió a: ${C_YELLOW}$new_pass${C_RESET}"
                ;;
-            2) read -p "Enter new duration (in days from today): " days
+            2) read -p "Introduce la nueva duración (en días a partir de hoy): " days
                if [[ "$days" =~ ^[0-9]+$ ]]; then
-                   local new_expire_date; new_expire_date=$(date -d "+$days days" +%Y-%m-%d); chage -E "$new_expire_date" "$username"
+                   local new_expire_date; new_expire_date=$(date -d "+$days dias" +%Y-%m-%d); chage -E "$new_expire_date" "$username"
                    sed -i "s/^$username:.*/$username:$cur_pass:$new_expire_date:$cur_limit:$cur_bw:$cur_daily_bw/" "$DB_FILE"
-                   echo -e "\n${C_GREEN}✅ Expiration for '$username' set to ${C_YELLOW}$new_expire_date${C_RESET}."
-               else echo -e "\n${C_RED}❌ Invalid number of days.${C_RESET}"; fi ;;
-            3) read -p "Enter new simultaneous connection limit: " new_limit
+                   echo -e "\n${C_GREEN}✅ Expiración para '$ username' establecido en ${C_YELLOW}$new_expire_date${C_RESET}."
+               else echo -e "\n${C_RED}❌ Número de días no válido.${C_RESET}"; fi ;;
+            3) read -p "Introduce el nuevo límite de conexiones simultáneas: " new_limit
                if [[ "$new_limit" =~ ^[0-9]+$ ]]; then
                    sed -i "s/^$username:.*/$username:$cur_pass:$cur_expiry:$new_limit:$cur_bw:$cur_daily_bw/" "$DB_FILE"
-                   echo -e "\n${C_GREEN}✅ Connection limit for '$username' set to ${C_YELLOW}$new_limit${C_RESET}."
-               else echo -e "\n${C_RED}❌ Invalid limit.${C_RESET}"; fi ;;
-            4) read -p "Enter new TOTAL bandwidth limit in GB (0 = unlimited): " new_bw
+                   echo -e "\n${C_GREEN}✅ Límite de conexiones para '$username' establecido en ${C_YELLOW}$new_limit${C_RESET}."
+               else echo -e "\n${C_RED}❌ Límite no válido.${C_RESET}"; fi ;;
+            4) read -p "Introduce el nuevo límite de ancho de banda TOTAL en GB (0 = ilimitado): " new_bw
                if [[ "$new_bw" =~ ^[0-9]+\.?[0-9]*$ ]]; then
                    sed -i "s/^$username:.*/$username:$cur_pass:$cur_expiry:$cur_limit:$new_bw:$cur_daily_bw/" "$DB_FILE"
-                   local bw_msg="Unlimited"; [[ "$new_bw" != "0" ]] && bw_msg="${new_bw} GB"
-                   echo -e "\n${C_GREEN}✅ Total bandwidth limit for '$username' set to ${C_YELLOW}$bw_msg${C_RESET}."
+                   local bw_msg="Ilimitado"; [[ "$new_bw" != "0" ]] && bw_msg="${new_bw} GB"
+                   echo -e "\n${C_GREEN}✅ Límite de ancho de banda total para '$username' ${C_YELLOW}$bw_msg${C_RESET}."
                    # Unlock user if they were locked due to bandwidth
                    if [[ "$new_bw" == "0" ]] || [[ -f "$BANDWIDTH_DIR/${username}.usage" ]]; then
                        local used_bytes; used_bytes=$(cat "$BANDWIDTH_DIR/${username}.usage" 2>/dev/null || echo 0)
@@ -1753,12 +1753,12 @@ edit_user() {
                            usermod -U "$username" &>/dev/null
                        fi
                    fi
-               else echo -e "\n${C_RED}❌ Invalid bandwidth value.${C_RESET}"; fi ;;
-            5) read -p "Enter new DAILY bandwidth limit in GB (0 = unlimited): " new_daily_bw
+               else echo -e "\n${C_RED}❌ Valor de ancho de banda no válido.${C_RESET}"; fi ;;
+            5) read -p "Introduce el nuevo límite diario de ancho de banda en GB (0 = ilimitado): " new_daily_bw
                if [[ "$new_daily_bw" =~ ^[0-9]+\.?[0-9]*$ ]]; then
                    sed -i "s/^$username:.*/$username:$cur_pass:$cur_expiry:$cur_limit:$cur_bw:$new_daily_bw/" "$DB_FILE"
-                   local daily_bw_msg="Unlimited"; [[ "$new_daily_bw" != "0" ]] && daily_bw_msg="${new_daily_bw} GB/day"
-                   echo -e "\n${C_GREEN}✅ Daily bandwidth limit for '$username' set to ${C_YELLOW}$daily_bw_msg${C_RESET}."
+                   local daily_bw_msg="Ilimitado"; [[ "$new_daily_bw" != "0" ]] && daily_bw_msg="${new_daily_bw} GB/Día"
+                   echo -e "\n${C_GREEN}✅ Límite de ancho de banda diario para '$username' establecido en ${C_YELLOW}$daily_bw_msg${C_RESET}."
                    # Unlock user if they were locked due to daily bandwidth
                    if [[ "$new_daily_bw" == "0" ]] || [[ -f "$BANDWIDTH_DIR/${username}.daily_usage" ]]; then
                        local d_used_bytes; d_used_bytes=$(cat "$BANDWIDTH_DIR/${username}.daily_usage" 2>/dev/null || echo 0)
@@ -1768,59 +1768,59 @@ edit_user() {
                            rm -f "$BANDWIDTH_DIR/${username}.daily_locked"
                        fi
                    fi
-               else echo -e "\n${C_RED}❌ Invalid bandwidth value.${C_RESET}"; fi ;;
+               else echo -e "\n${C_RED}❌ Valor de ancho de banda no válido.${C_RESET}"; fi ;;
             6)
                echo "0" > "$BANDWIDTH_DIR/${username}.usage"
                echo "0" > "$BANDWIDTH_DIR/${username}.daily_usage"
                rm -f "$BANDWIDTH_DIR/${username}.daily_locked"
                # Unlock user if they were locked due to bandwidth
                usermod -U "$username" &>/dev/null
-               echo -e "\n${C_GREEN}✅ All bandwidth counters for '$username' have been reset to 0.${C_RESET}"
+               echo -e "\n${C_GREEN}✅ Los contadores de ancho de banda para '$username' se han restablecido a 0.${C_RESET}"
                ;;
             0) return ;;
-            *) echo -e "\n${C_RED}❌ Invalid option.${C_RESET}" ;;
+            *) echo -e "\n${C_RED}❌ Opción no válida.${C_RESET}" ;;
         esac
-        echo -e "\nPress ${C_YELLOW}[Enter]${C_RESET} to continue editing..." && read -r || return
+        echo -e "\nPulsa ${C_YELLOW}[Enter]${C_RESET} para continuar editando..." && read -r || return
     done
 }
 
 lock_user() {
-    _select_multi_user_interface "--- 🔒 Lock Users (from DB) ---"
+    _select_multi_user_interface "--- 🔒 Bloquear usuarios (desde DB) ---"
     if [[ ${#SELECTED_USERS[@]} -eq 0 || "${SELECTED_USERS[0]}" == "NO_USERS" ]]; then return; fi
     
-    echo -e "\n${C_BLUE}🔒 Locking selected users...${C_RESET}"
+    echo -e "\n${C_BLUE}🔒 Bloqueo de usuarios seleccionados...${C_RESET}"
     for u in "${SELECTED_USERS[@]}"; do
         if ! id "$u" &>/dev/null; then
-             echo -e " ❌ User '${C_YELLOW}$u${C_RESET}' does not exist on this system."
+             echo -e " ❌ El usuario '${C_YELLOW}$u${C_RESET}' no existe en este sistema."
              continue
         fi
         
         usermod -L "$u"
         if [ $? -eq 0 ]; then
             killall -u "$u" -9 &>/dev/null
-            echo -e " ✅ ${C_YELLOW}$u${C_RESET} locked and active sessions killed."
+            echo -e " ✅ ${C_YELLOW}$u${C_RESET} sesiones bloqueadas y activas finalizadas."
         else
-            echo -e " ❌ Failed to lock ${C_YELLOW}$u${C_RESET}."
+            echo -e " ❌ No se pudo bloquear ${C_YELLOW}$u${C_RESET}."
         fi
     done
 }
 
 unlock_user() {
-    _select_multi_user_interface "--- 🔓 Unlock Users (from DB) ---"
+    _select_multi_user_interface "--- 🔓 Desbloquear usuarios (desde DB) ---"
     if [[ ${#SELECTED_USERS[@]} -eq 0 || "${SELECTED_USERS[0]}" == "NO_USERS" ]]; then return; fi
     
-    echo -e "\n${C_BLUE}🔓 Unlocking selected users...${C_RESET}"
+    echo -e "\n${C_BLUE}🔓 Desbloqueo de usuarios seleccionados...${C_RESET}"
     for u in "${SELECTED_USERS[@]}"; do
         if ! id "$u" &>/dev/null; then
-             echo -e " ❌ User '${C_YELLOW}$u${C_RESET}' does not exist on this system."
+             echo -e " ❌ El usuario '${C_YELLOW}$u${C_RESET}' no existe en este sistema."
              continue
         fi
         
         usermod -U "$u"
         if [ $? -eq 0 ]; then
-            echo -e " ✅ ${C_YELLOW}$u${C_RESET} unlocked."
+            echo -e " ✅ ${C_YELLOW}$u${C_RESET} desbloqueado."
         else
-            echo -e " ❌ Failed to unlock ${C_YELLOW}$u${C_RESET}."
+            echo -e " ❌ No se pudo desbloquear ${C_YELLOW}$u${C_RESET}."
         fi
     done
 }
@@ -1828,12 +1828,12 @@ unlock_user() {
 list_users() {
     clear; show_banner
     if [[ ! -s "$DB_FILE" ]]; then
-        echo -e "\n${C_YELLOW}ℹ️ No users are currently being managed.${C_RESET}"
+        echo -e "\n${C_YELLOW}ℹ️ Actualmente no se está gestionando ningún usuario..${C_RESET}"
         return
     fi
-    echo -e "${C_BOLD}${C_PURPLE}--- 📋 Managed Users ---${C_RESET}"
+    echo -e "${C_BOLD}${C_PURPLE}--- 📋 Gestionar usuarios ---${C_RESET}"
     echo -e "${C_YELLOW}---------------------------------------------------------------------------------------------------${C_RESET}"
-    printf "${C_BOLD}${C_WHITE}%-18s | %-12s | %-10s | %-25s | %-20s${C_RESET}\n" "USERNAME" "EXPIRATION" "SESSIONS" "BANDWIDTH" "STATUS"
+    printf "${C_BOLD}${C_WHITE}%-18s | %-12s | %-10s | %-25s | %-20s${C_RESET}\n" "USUARIO" "EXPIRACIÓn" "SESIONES" "ANC. BANDA" "ESTADO"
     echo -e "${C_YELLOW}---------------------------------------------------------------------------------------------------${C_RESET}"
 
     local current_ts
@@ -1861,13 +1861,13 @@ list_users() {
         local online_count="${SSH_SESSION_COUNTS[$user]:-0}"
         local connection_string="$online_count / $limit"
         local plain_status="Active"
-        local status="${C_GREEN}🟢 Active${C_RESET}"
+        local status="${C_GREEN}🟢 Activo${C_RESET}"
         local quota_exceeded=false
 
         [[ -z "$bandwidth_gb" ]] && bandwidth_gb="0"
         [[ ! "$daily_bandwidth_gb" =~ ^[0-9]+\.?[0-9]*$ ]] && daily_bandwidth_gb="0"
         
-        local bw_string="Unlimited"
+        local bw_string="Ilimitado"
         local total_str=""
         local daily_str=""
         
@@ -1912,28 +1912,28 @@ list_users() {
         fi
 
         if [[ -z "${system_user_lookup[$user]+x}" ]]; then
-            plain_status="Not Found"
-            status="${C_RED}Not Found${C_RESET}"
-        elif [[ -n "$expiry" && "$expiry" != "Never" ]]; then
+            plain_status="No encontrado"
+            status="${C_RED}No encontrado${C_RESET}"
+        elif [[ -n "$expiry" && "$expiry" != "Nunca" ]]; then
             local expiry_ts
             expiry_ts=$(date -d "$expiry" +%s 2>/dev/null || echo 0)
             if [[ "$expiry_ts" =~ ^[0-9]+$ ]] && (( expiry_ts > 0 && expiry_ts < current_ts )); then
-                plain_status="Expired"
-                status="${C_RED}🗓️ Expired${C_RESET}"
+                plain_status="Expirado"
+                status="${C_RED}🗓️ Expirado${C_RESET}"
             fi
         fi
 
         if [[ "$plain_status" == "Active" && "$quota_exceeded" == true ]]; then
             if [[ -n "${locked_user_lookup[$user]+x}" ]]; then
                 plain_status="BW Locked"
-                status="${C_RED}🔒 BW Locked${C_RESET}"
+                status="${C_RED}🔒 BW bloqueado${C_RESET}"
             else
                 plain_status="Quota Exceeded"
-                status="${C_RED}📦 Quota Exceeded${C_RESET}"
+                status="${C_RED}📦 Cuota excedida${C_RESET}"
             fi
         elif [[ "$plain_status" == "Active" && -n "${locked_user_lookup[$user]+x}" ]]; then
             plain_status="Locked"
-            status="${C_YELLOW}🔒 Locked${C_RESET}"
+            status="${C_YELLOW}🔒 Bloqueado${C_RESET}"
         fi
 
         local line_color="$C_WHITE"
@@ -1952,12 +1952,12 @@ list_users() {
 }
 
 renew_user() {
-    _select_multi_user_interface "--- 🔄 Renew Users ---"
+    _select_multi_user_interface "--- 🔄 Renovar usuarios ---"
     if [[ ${#SELECTED_USERS[@]} -eq 0 || "${SELECTED_USERS[0]}" == "NO_USERS" ]]; then return; fi
-    read -p "👉 Enter number of days to extend the account(s): " days; if ! [[ "$days" =~ ^[0-9]+$ ]]; then echo -e "\n${C_RED}❌ Invalid number.${C_RESET}"; return; fi
-    local new_expire_date; new_expire_date=$(date -d "+$days days" +%Y-%m-%d)
+    read -p "👉 Ingrese la cantidad de días para extender la(s) cuenta(s): " days; if ! [[ "$days" =~ ^[0-9]+$ ]]; then echo -e "\n${C_RED}❌ Número no válido.${C_RESET}"; return; fi
+    local new_expire_date; new_expire_date=$(date -d "+$days Días" +%Y-%m-%d)
     
-    echo -e "\n${C_BLUE}🔄 Renewing selected users for $days days...${C_RESET}"
+    echo -e "\n${C_BLUE}🔄 Renovar a los usuarios seleccionados por $days días...${C_RESET}"
     for u in "${SELECTED_USERS[@]}"; do
         chage -E "$new_expire_date" "$u"
         local line pass _expiry limit bw
@@ -1965,20 +1965,20 @@ renew_user() {
         IFS=: read -r _ pass _expiry limit bw _ <<< "$line"
         [[ -z "$bw" ]] && bw="0"
         sed -i "s/^$u:.*/$u:$pass:$new_expire_date:$limit:$bw/" "$DB_FILE"
-        echo -e " ✅ ${C_YELLOW}$u${C_RESET} renewed until ${C_GREEN}${new_expire_date}${C_RESET}."
+        echo -e " ✅ ${C_YELLOW}$u${C_RESET} renovado hasta ${C_GREEN}${new_expire_date}${C_RESET}."
     done
 }
 
 cleanup_expired() {
     clear; show_banner
-    echo -e "${C_BOLD}${C_PURPLE}--- 🧹 Cleanup Expired Users ---${C_RESET}"
+    echo -e "${C_BOLD}${C_PURPLE}--- 🧹 Limpiar usuarios Expirados ---${C_RESET}"
     
     local expired_users=()
     local current_ts
     current_ts=$(date +%s)
 
     if [[ ! -s "$DB_FILE" ]]; then
-        echo -e "\n${C_GREEN}✅ User database is empty. No expired users found.${C_RESET}"
+        echo -e "\n${C_GREEN}✅ La base de datos de usuarios está vacía. No se han encontrado usuarios expirados..${C_RESET}"
         return
     fi
     
@@ -1992,70 +1992,70 @@ cleanup_expired() {
     done < "$DB_FILE"
 
     if [ ${#expired_users[@]} -eq 0 ]; then
-        echo -e "\n${C_GREEN}✅ No expired users found.${C_RESET}"
+        echo -e "\n${C_GREEN}✅ No se han encontrado usuarios expirados.${C_RESET}"
         return
     fi
 
-    echo -e "\nThe following users have expired: ${C_RED}${expired_users[*]}${C_RESET}"
-    read -p "👉 Do you want to delete all of them? (y/n): " confirm
+    echo -e "\nLos siguientes usuarios han expirado.: ${C_RED}${expired_users[*]}${C_RESET}"
+    read -p "👉 ¿Quieres borrarlos todos? (y/n): " confirm
 
     if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
-        echo -e "\n${C_BLUE}🗑️ Deleting expired users...${C_RESET}"
+        echo -e "\n${C_BLUE}🗑️ Eliminación de usuarios caducados...${C_RESET}"
         delete_firewallfalcon_user_accounts "${expired_users[@]}"
-        echo -e "\n${C_GREEN}✅ Expired users have been cleaned up.${C_RESET}"
+        echo -e "\n${C_GREEN}✅ Los usuarios caducados han sido limpiados.${C_RESET}"
     else
-        echo -e "\n${C_YELLOW}❌ Cleanup cancelled.${C_RESET}"
+        echo -e "\n${C_YELLOW}❌ Limpieza cancelada.${C_RESET}"
     fi
 }
 
 
 backup_user_data() {
     clear; show_banner
-    echo -e "${C_BOLD}${C_PURPLE}--- 💾 Backup User Data ---${C_RESET}"
-    read -p "👉 Enter path for backup file [/root/firewallfalcon_users.tar.gz]: " backup_path
+    echo -e "${C_BOLD}${C_PURPLE}--- 💾 Realizar copia de seguridad de los datos del usuario ---${C_RESET}"
+    read -p "👉 Introduce la ruta del archivo de copia de seguridad [/root/firewallfalcon_users.tar.gz]: " backup_path
     backup_path=${backup_path:-/root/firewallfalcon_users.tar.gz}
     if [ ! -d "$DB_DIR" ] || [ ! -s "$DB_FILE" ]; then
-        echo -e "\n${C_YELLOW}ℹ️ No user data found to back up.${C_RESET}"
+        echo -e "\n${C_YELLOW}ℹ️ No se encontraron usuarios para realizar una copia de seguridad.${C_RESET}"
         return
     fi
-    echo -e "\n${C_BLUE}⚙️ Backing up user database and settings to ${C_YELLOW}$backup_path${C_RESET}..."
+    echo -e "\n${C_BLUE}⚙️ Realizar una copia de seguridad de la base de datos de usuarios y la configuración en ${C_YELLOW}$backup_path${C_RESET}..."
     tar -czf "$backup_path" -C "$(dirname "$DB_DIR")" "$(basename "$DB_DIR")"
     if [ $? -eq 0 ]; then
-        echo -e "\n${C_GREEN}✅ SUCCESS: User data backup created at ${C_YELLOW}$backup_path${C_RESET}"
+        echo -e "\n${C_GREEN}✅ ÉXITO: ​​Copia de seguridad de datos de usuario creada en ${C_YELLOW}$backup_path${C_RESET}"
     else
-        echo -e "\n${C_RED}❌ ERROR: Backup failed.${C_RESET}"
+        echo -e "\n${C_RED}❌ ERROR: La copia de seguridad ha fallado.${C_RESET}"
     fi
 }
 
 restore_user_data() {
     clear; show_banner
-    echo -e "${C_BOLD}${C_PURPLE}--- 📥 Restore User Data ---${C_RESET}"
-    read -p "👉 Enter the full path to the user data backup file [/root/firewallfalcon_users.tar.gz]: " backup_path
+    echo -e "${C_BOLD}${C_PURPLE}--- 📥 Restaurar datos de usuario ---${C_RESET}"
+    read -p "👉 Introduce la ruta completa al archivo de copia de seguridad [/root/firewallfalcon_users.tar.gz]: " backup_path
     backup_path=${backup_path:-/root/firewallfalcon_users.tar.gz}
     if [ ! -f "$backup_path" ]; then
-        echo -e "\n${C_RED}❌ ERROR: Backup file not found at '$backup_path'.${C_RESET}"
+        echo -e "\n${C_RED}❌ ERROR: No se encontró el archivo de copia de seguridad en '$backup_path'.${C_RESET}"
         return
     fi
-    echo -e "\n${C_RED}${C_BOLD}⚠️ WARNING:${C_RESET} This will overwrite all current users and settings."
-    echo -e "It will restore user accounts, passwords, limits, and expiration dates from the backup file."
-    read -p "👉 Are you absolutely sure you want to proceed? (y/n): " confirm
-    if [[ "$confirm" != "y" ]]; then echo -e "\n${C_YELLOW}❌ Restore cancelled.${C_RESET}"; return; fi
+    echo -e "\n${C_RED}${C_BOLD}⚠️ ADVERTENCIA:${C_RESET} Esto sobrescribirá todos los usuarios y la configuración actuales."
+    echo -e "Restaurará las cuentas de usuario, las contraseñas, los límites y las fechas expiración a partir del archivo de copia de seguridad."
+    read -p "👉 ¿Estás seguro de que quieres continuar? (y/n): " confirm
+    if [[ "$confirm" != "y" ]]; then echo -e "\n${C_YELLOW}❌ Restauración cancelada.${C_RESET}"; return; fi
     local temp_dir
     temp_dir=$(mktemp -d)
-    echo -e "\n${C_BLUE}⚙️ Extracting backup file to a temporary location...${C_RESET}"
+    echo -e "\n${C_BLUE}⚙️ Extrayendo el archivo de copia de seguridad a una ubicación temporal...${C_RESET}"
     tar -xzf "$backup_path" -C "$temp_dir"
     if [ $? -ne 0 ]; then
-        echo -e "\n${C_RED}❌ ERROR: Failed to extract backup file. Aborting.${C_RESET}"
+        echo -e "\n${C_RED}❌ ERROR: No se pudo extraer el archivo de copia de seguridad. Abortando.${C_RESET}"
         rm -rf "$temp_dir"
         return
     fi
     local restored_db_file="$temp_dir/firewallfalcon/users.db"
     if [ ! -f "$restored_db_file" ]; then
-        echo -e "\n${C_RED}❌ ERROR: users.db not found in the backup. Cannot restore user accounts.${C_RESET}"
+        echo -e "\n${C_RED}❌ ERROR: no se encontró users.db en la copia de seguridad. No es posible restaurar las cuentas de usuario.${C_RESET}"
         rm -rf "$temp_dir"
         return
     fi
-    echo -e "${C_BLUE}⚙️ Overwriting current user database...${C_RESET}"
+    echo -e "${C_BLUE}⚙️ Sobrescribiendo la base de datos de usuarios actual...${C_RESET}"
     mkdir -p "$DB_DIR"
     cp "$restored_db_file" "$DB_FILE"
     if [ -d "$temp_dir/firewallfalcon/ssl" ]; then
@@ -2074,65 +2074,65 @@ restore_user_data() {
         cp "$temp_dir/firewallfalcon/falconproxy_config.conf" "$DB_DIR/"
     fi
     
-    echo -e "${C_BLUE}⚙️ Re-synchronizing system accounts with the restored database...${C_RESET}"
+    echo -e "${C_BLUE}⚙️ Resincronización de las cuentas del sistema con la base de datos restaurada...${C_RESET}"
     ensure_firewallfalcon_system_group
     
     while IFS=: read -r user pass expiry limit; do
-        echo "Processing user: ${C_YELLOW}$user${C_RESET}"
+        echo "Procesando usuario: ${C_YELLOW}$user${C_RESET}"
         if ! id "$user" &>/dev/null; then
-            echo " - User does not exist in system. Creating..."
+            echo " - El usuario no existe en el sistema. Creando..."
             useradd -m -s /usr/sbin/nologin "$user"
         fi
         usermod -aG "$FF_USERS_GROUP" "$user" 2>/dev/null
-        echo " - Setting password..."
+        echo " - Establecer contraseña..."
         echo "$user:$pass" | chpasswd
-        echo " - Setting expiration to $expiry..."
+        echo " - Establecer la fecha de expiración en $expiry..."
         chage -E "$expiry" "$user"
-        echo " - Connection limit is $limit (enforced by PAM)"
+        echo " - El límite de conexiones es $limit (aplicado mediante PAM)"
     done < "$DB_FILE"
     rm -rf "$temp_dir"
-    echo -e "\n${C_GREEN}✅ SUCCESS: User data restore completed.${C_RESET}"
+    echo -e "\n${C_GREEN}✅ ÉXITO: ​​Restauración de datos de usuario completada.${C_RESET}"
     
     invalidate_banner_cache
     refresh_dynamic_banner_routing_if_enabled
 }
 
 _enable_banner_in_sshd_config() {
-    echo -e "\n${C_BLUE}⚙️ Configuring sshd_config...${C_RESET}"
+    echo -e "\n${C_BLUE}⚙️ Configuración de sshd_config...${C_RESET}"
     disable_dynamic_ssh_banner_system
     sed -i.bak -E 's/^( *Banner *).*/#\1/' /etc/ssh/sshd_config
     if ! grep -q -E "^Banner $SSH_BANNER_FILE" /etc/ssh/sshd_config; then
         echo -e "\n# FirewallFalcon SSH Banner\nBanner $SSH_BANNER_FILE" >> /etc/ssh/sshd_config
     fi
-    echo -e "${C_GREEN}✅ sshd_config updated.${C_RESET}"
+    echo -e "${C_GREEN}✅ sshd_config actualizado.${C_RESET}"
 }
 
 _restart_ssh() {
-    echo -e "\n${C_BLUE}🔄 Restarting SSH service to apply changes...${C_RESET}"
+    echo -e "\n${C_BLUE}🔄 Reiniciando el servicio SSH para aplicar los cambios...${C_RESET}"
     local ssh_service_name=""
     if [ -f /lib/systemd/system/sshd.service ]; then
         ssh_service_name="sshd.service"
     elif [ -f /lib/systemd/system/ssh.service ]; then
         ssh_service_name="ssh.service"
     else
-        echo -e "${C_RED}❌ Could not find sshd.service or ssh.service. Cannot restart SSH.${C_RESET}"
+        echo -e "${C_RED}❌ No se pudo encontrar sshd.service ni ssh.service. No es posible reiniciar SSH.${C_RESET}"
         return 1
     fi
 
     systemctl restart "${ssh_service_name}"
     if [ $? -eq 0 ]; then
-        echo -e "${C_GREEN}✅ SSH service ('${ssh_service_name}') restarted successfully.${C_RESET}"
+        echo -e "${C_GREEN}✅ Servicio SSH ('${ssh_service_name}') reiniciado correctamente.${C_RESET}"
     else
-        echo -e "${C_RED}❌ Failed to restart SSH service ('${ssh_service_name}'). Please check 'journalctl -u ${ssh_service_name}' for errors.${C_RESET}"
+        echo -e "${C_RED}❌ No se pudo reiniciar el servicio SSH ('${ssh_service_name}'). Por favor, compruebe 'journalctl -u ${ssh_service_name}' en busca de errores.${C_RESET}"
     fi
 }
 
 set_ssh_banner_paste() {
     clear; show_banner
-    echo -e "${C_BOLD}${C_PURPLE}--- 📋 Paste Static SSH Banner ---${C_RESET}"
-    echo -e "Paste your custom banner below. Press ${C_YELLOW}[Ctrl+D]${C_RESET} when you are finished."
-    echo -e "${C_DIM}This will be shown to all SSH users through 'Banner $SSH_BANNER_FILE'.${C_RESET}"
-    echo -e "${C_DIM}The current banner (if any) will be overwritten.${C_RESET}"
+    echo -e "${C_BOLD}${C_PURPLE}--- 📋 Pegar banner SSH estático ---${C_RESET}"
+    echo -e "Pega tu banner personalizado a continuación. Presiona ${C_ YELLOW}[Ctrl+D]${C_ RESET} cuando hayas terminado."
+    echo -e "${C_DIM}Esto se mostrará a todos los usuarios de SSH a través de 'Banner $SSH_BANNER_FILE'.${C_RESET}"
+    echo -e "${C_DIM}El banner actual (si existe) será sobrescrito.${C_RESET}"
     echo -e "--------------------------------------------------"
     cat > "$SSH_BANNER_FILE"
     chmod 644 "$SSH_BANNER_FILE"
@@ -2140,68 +2140,68 @@ set_ssh_banner_paste() {
     echo -e "\n${C_GREEN}✅ Static banner content saved.${C_RESET}"
     _enable_banner_in_sshd_config
     _restart_ssh
-    echo -e "\nPress ${C_YELLOW}[Enter]${C_RESET} to return..." && read -r
+    echo -e "\nPresione ${C_YELLOW}[Enter]${C_RESET} para regresar..." && read -r
 }
 
 view_ssh_banner() {
     clear; show_banner
-    echo -e "${C_BOLD}${C_PURPLE}--- 👁️ Current SSH Banner ---${C_RESET}"
+    echo -e "${C_BOLD}${C_PURPLE}--- 👁️ Banner SSH actual ---${C_RESET}"
     if [ -f "$SSH_BANNER_FILE" ]; then
-        echo -e "\n${C_CYAN}--- BEGIN BANNER ---${C_RESET}"
+        echo -e "\n${C_CYAN}--- INICIO DEL BANNER ---${C_RESET}"
         cat "$SSH_BANNER_FILE"
-        echo -e "${C_CYAN}---- END BANNER ----${C_RESET}"
+        echo -e "${C_CYAN}---- BANNER FINAL ----${C_RESET}"
     else
-        echo -e "\n${C_YELLOW}ℹ️ No banner file found at $SSH_BANNER_FILE.${C_RESET}"
+        echo -e "\n${C_YELLOW}ℹ️ No se encontró ningún archivo de banner en $SSH_BANNER_FILE.${C_RESET}"
     fi
-    echo -e "\nPress ${C_YELLOW}[Enter]${C_RESET} to return..." && read -r
+    echo -e "\nPresione ${C_YELLOW}[Enter]${C_RESET} para regresar..." && read -r
 }
 
 remove_ssh_banner() {
     clear; show_banner
     echo -e "${C_BOLD}${C_PURPLE}--- 🗑️ Disable SSH Banners ---${C_RESET}"
-    read -p "👉 Are you sure you want to disable all SSH banners? (y/n): " confirm
+    read -p "👉 ¿Estás seguro de que quieres desactivar todos los banners SSH? (y/n): " confirm
     if [[ "$confirm" != "y" ]]; then
-        echo -e "\n${C_YELLOW}❌ Action cancelled.${C_RESET}"
-        echo -e "\nPress ${C_YELLOW}[Enter]${C_RESET} to return..." && read -r
+        echo -e "\n${C_YELLOW}❌ Acción cancelada.${C_RESET}"
+        echo -e "\nPresione ${C_YELLOW}[Enter]${C_RESET} para regresar..." && read -r
         return
     fi
     if [ -f "$SSH_BANNER_FILE" ]; then
         rm -f "$SSH_BANNER_FILE"
-        echo -e "\n${C_GREEN}✅ Removed banner file: $SSH_BANNER_FILE${C_RESET}"
+        echo -e "\n${C_GREEN}✅ Archivo de banner eliminado: $SSH_BANNER_FILE${C_RESET}"
     else
-        echo -e "\n${C_YELLOW}ℹ️ No banner file to remove.${C_RESET}"
+        echo -e "\n${C_YELLOW}ℹ️ No hay ningún archivo de banner que eliminar.${C_RESET}"
     fi
     disable_dynamic_ssh_banner_system
-    echo -e "\n${C_BLUE}⚙️ Disabling banner in sshd_config...${C_RESET}"
+    echo -e "\n${C_BLUE}⚙️ Desactivar el banner en sshd_config...${C_RESET}"
     disable_static_ssh_banner_in_sshd_config
-    echo -e "${C_GREEN}✅ Banner disabled in configuration.${C_RESET}"
+    echo -e "${C_GREEN}✅ Banner deshabilitado en la configuración.${C_RESET}"
     _restart_ssh
-    echo -e "\nPress ${C_YELLOW}[Enter]${C_RESET} to return..." && read -r
+    echo -e "\nPresione ${C_YELLOW}[Enter]${C_RESET} para regresar..." && read -r
 }
 
 preview_dynamic_ssh_banner() {
     if ! is_dynamic_ssh_banner_enabled; then
-        echo -e "\n${C_RED}❌ Dynamic banners are not enabled right now.${C_RESET}"
+        echo -e "\n${C_RED}❌ Los banners dinámicos no están habilitados en este momento.${C_RESET}"
         press_enter
         return
     fi
 
     echo -e "${C_DIM}Refreshing dynamic banner worker...${C_RESET}"
     setup_limiter_service >/dev/null 2>&1
-    _select_user_interface "--- 📝 Preview Dynamic Banner ---"
+    _select_user_interface "--- 📝 Vista previa del banner dinámico ---"
     local u=$SELECTED_USER
     if [[ -z "$u" || "$u" == "NO_USERS" ]]; then
         return
     fi
 
-    echo -e "\n${C_CYAN}--- Dynamic Banner Preview for user '$u' ---${C_RESET}\n"
+    echo -e "\n${C_CYAN}--- Vista previa de banner dinámico para el usuario '$u' ---${C_RESET}\n"
     if [[ -f "/etc/firewallfalcon/banners/${u}.txt" ]]; then
         cat "/etc/firewallfalcon/banners/${u}.txt"
     else
-        echo -e "${C_RED}Banner file not generated yet. Waiting up to 10s for the worker...${C_RESET}"
+        echo -e "${C_RED}El archivo del banner aún no se ha generado. Espera hasta 10s a que el proceso de trabajo finalice...${C_RESET}"
         sleep 5
         if ! cat "/etc/firewallfalcon/banners/${u}.txt" 2>/dev/null; then
-            echo -e "\n${C_RED}Still not generated. Here are the last limiter logs:${C_RESET}"
+            echo -e "\n${C_RED}Aún no se ha generado. Aquí están los últimos registros del limitador:${C_RESET}"
             echo -e "----------------------------------------------------------------------"
             journalctl -u firewallfalcon-limiter -n 15 --no-pager
             echo -e "----------------------------------------------------------------------"
@@ -2214,55 +2214,55 @@ preview_dynamic_ssh_banner() {
 
 install_udp_custom() {
     clear; show_banner
-    echo -e "${C_BOLD}${C_PURPLE}--- 🚀 Installing udp-custom ---${C_RESET}"
+    echo -e "${C_BOLD}${C_PURPLE}--- 🚀 Instalación de udp-custom ---${C_RESET}"
     if [ -f "$UDP_CUSTOM_SERVICE_FILE" ] || [ -f "$UDPGW_SERVICE_FILE" ]; then
-        echo -e "\n${C_YELLOW}ℹ️ udp-custom is already installed.${C_RESET}"
+        echo -e "\n${C_YELLOW}ℹ️ udp-custom ya está instalado.${C_RESET}"
         return
     fi
 
     check_and_free_ports 36712 7800 || return
     check_and_open_firewall_port 36712 udp || return
 
-    echo -e "\n${C_GREEN}⚙️ Creating directory for udp-custom...${C_RESET}"
+    echo -e "\n${C_GREEN}⚙️ Creando directorio para udp-custom...${C_RESET}"
     rm -rf "$UDP_CUSTOM_DIR"
     mkdir -p "$UDP_CUSTOM_DIR"
 
-    echo -e "\n${C_GREEN}⚙️ Detecting system architecture...${C_RESET}"
+    echo -e "\n${C_GREEN}⚙️ Detección de la arquitectura del sistema...${C_RESET}"
     local arch
     arch=$(uname -m)
     local binary_url=""
     if [[ "$arch" == "x86_64" ]]; then
         binary_url="https://raw.githubusercontent.com/ianalejandrook14x/SSH-PANEL/main/udp/udp-custom-linux-amd64[1]"
-        echo -e "${C_BLUE}ℹ️ Detected x86_64 (amd64) architecture.${C_RESET}"
+        echo -e "${C_BLUE}ℹ️ Se ha detectado la arquitectura x86_64 (amd64).${C_RESET}"
     elif [[ "$arch" == "aarch64" || "$arch" == "arm64" ]]; then
         binary_url="https://raw.githubusercontent.com/ianalejandrook14x/SSH-PANEL/main/udp/udp-custom-linux-arm[1]"
-        echo -e "${C_BLUE}ℹ️ Detected ARM64 architecture.${C_RESET}"
+        echo -e "${C_BLUE}ℹ️ Arquitectura ARM64 detectada.${C_RESET}"
     else
-        echo -e "\n${C_RED}❌ Unsupported architecture: $arch. Cannot install udp-custom.${C_RESET}"
+        echo -e "\n${C_RED}❌ Arquitectura no compatible: $arch. No es posible instalar udp-custom.${C_RESET}"
         rm -rf "$UDP_CUSTOM_DIR"
         return
     fi
 
-    echo -e "\n${C_GREEN}📥 Downloading udp-custom binary...${C_RESET}"
+    echo -e "\n${C_GREEN}📥 Descargando el binario udp-custom...${C_RESET}"
     wget -q --show-progress -O "$UDP_CUSTOM_DIR/udp-custom" "$binary_url"
     if [ $? -ne 0 ]; then
-        echo -e "\n${C_RED}❌ Failed to download the udp-custom binary.${C_RESET}"
+        echo -e "\n${C_RED}❌ No se pudo descargar el binario udp-custom.${C_RESET}"
         rm -rf "$UDP_CUSTOM_DIR"
         return
     fi
     chmod +x "$UDP_CUSTOM_DIR/udp-custom"
 
-    echo -e "\n${C_GREEN}📦 Setting up udpgw helper...${C_RESET}"
+    echo -e "\n${C_GREEN}📦 Configuración del asistente udpgw...${C_RESET}"
     if [[ "$arch" == "x86_64" ]]; then
         wget -q --show-progress -O "$UDPGW_BINARY" "https://raw.githubusercontent.com/http-custom/udp-custom/main/module/udpgw"
         if [ $? -ne 0 ]; then
-            echo -e "\n${C_RED}❌ Failed to download the udpgw helper binary.${C_RESET}"
+            echo -e "\n${C_RED}❌ No se pudo descargar el binario auxiliar udpgw.${C_RESET}"
             rm -rf "$UDP_CUSTOM_DIR"
             return
         fi
         chmod +x "$UDPGW_BINARY"
     else
-        echo -e "${C_YELLOW}ℹ️ Architecture is $arch. Compiling udpgw from source (this may take a minute)...${C_RESET}"
+        echo -e "${C_YELLOW}ℹ️ La arquitectura es $arch. Compilando udpgw a partir del código fuente (esto puede tardar un minuto)...${C_RESET}"
         ff_pkg_install cmake g++ make git >/dev/null 2>&1
         local temp_build="/tmp/badvpn_build"
         rm -rf "$temp_build"
@@ -2273,14 +2273,14 @@ install_udp_custom() {
             cp "$compiled_bin" "$UDPGW_BINARY"
             chmod +x "$UDPGW_BINARY"
         else
-            echo -e "\n${C_RED}❌ Failed to compile udpgw helper for $arch.${C_RESET}"
+            echo -e "\n${C_RED}❌ Error al compilar el asistente udpgw para $arch.${C_RESET}"
             rm -rf "$UDP_CUSTOM_DIR" "$temp_build"
             return
         fi
         rm -rf "$temp_build"
     fi
 
-    echo -e "\n${C_GREEN}📝 Creating default config.json...${C_RESET}"
+    echo -e "\n${C_GREEN}📝 Creando valores predeterminados config.json...${C_RESET}"
     cat > "$UDP_CUSTOM_DIR/config.json" <<EOF
 {
   "listen": ":36712",
@@ -2293,7 +2293,7 @@ install_udp_custom() {
 EOF
     chmod 644 "$UDP_CUSTOM_DIR/config.json"
 
-    echo -e "\n${C_GREEN}📝 Creating udpgw systemd service file...${C_RESET}"
+    echo -e "\n${C_GREEN}📝 Creación del archivo de servicio systemd para udpgw...${C_RESET}"
     cat > "$UDPGW_SERVICE_FILE" <<EOF
 [Unit]
 Description=FirewallFalcon UDPGW Backend
@@ -2310,7 +2310,7 @@ RestartSec=2s
 WantedBy=multi-user.target
 EOF
 
-    echo -e "\n${C_GREEN}📝 Creating systemd service file...${C_RESET}"
+    echo -e "\n${C_GREEN}📝 Creación de un archivo de servicio de systemd...${C_RESET}"
     cat > "$UDP_CUSTOM_SERVICE_FILE" <<EOF
 [Unit]
 Description=UDP Custom by FirewallFalcon
@@ -2328,7 +2328,7 @@ RestartSec=2s
 WantedBy=multi-user.target
 EOF
 
-    echo -e "\n${C_GREEN}▶️ Enabling and starting udp-custom service...${C_RESET}"
+    echo -e "\n${C_GREEN}▶️ Habilitar y iniciar el servicio udp-custom...${C_RESET}"
     systemctl daemon-reload
     systemctl enable udpgw.service
     systemctl start udpgw.service
@@ -2336,35 +2336,35 @@ EOF
     systemctl start udp-custom.service
     sleep 2
     if systemctl is-active --quiet udpgw && systemctl is-active --quiet udp-custom; then
-        echo -e "\n${C_GREEN}✅ SUCCESS: udp-custom is installed and active.${C_RESET}"
+        echo -e "\n${C_GREEN}✅ ÉXITO: ​​udp-custom está instalado y activo..${C_RESET}"
     else
-        echo -e "\n${C_RED}❌ ERROR: udp-custom service failed to start.${C_RESET}"
-        echo -e "${C_YELLOW}ℹ️ Displaying last 15 lines of the udp-custom and udpgw logs for diagnostics:${C_RESET}"
+        echo -e "\n${C_RED}❌ ERROR: el servicio udp-custom no pudo iniciarse.${C_RESET}"
+        echo -e "${C_YELLOW}ℹ️ Se muestran las últimas 15 líneas de los registros de udp-custom y udpgw para fines de diagnóstico:${C_RESET}"
         journalctl -u udp-custom.service -n 15 --no-pager
         journalctl -u udpgw.service -n 15 --no-pager
     fi
 }
 
 uninstall_udp_custom() {
-    echo -e "\n${C_BOLD}${C_PURPLE}--- 🗑️ Uninstalling udp-custom ---${C_RESET}"
+    echo -e "\n${C_BOLD}${C_PURPLE}--- 🗑️ Desinstalando udp-custom ---${C_RESET}"
     if [ ! -f "$UDP_CUSTOM_SERVICE_FILE" ] && [ ! -f "$UDPGW_SERVICE_FILE" ]; then
-        echo -e "${C_YELLOW}ℹ️ udp-custom is not installed, skipping.${C_RESET}"
+        echo -e "${C_YELLOW}ℹ️ udp-custom no está instalado; se omite.${C_RESET}"
         return
     fi
-    echo -e "${C_GREEN}🛑 Stopping and disabling udpgw service...${C_RESET}"
+    echo -e "${C_GREEN}🛑 Detener y deshabilitar el servicio udpgw...${C_RESET}"
     systemctl stop udpgw.service >/dev/null 2>&1
     systemctl disable udpgw.service >/dev/null 2>&1
-    echo -e "${C_GREEN}🛑 Stopping and disabling udp-custom service...${C_RESET}"
+    echo -e "${C_GREEN}🛑 Detener y deshabilitar el servicio udp-custom...${C_RESET}"
     systemctl stop udp-custom.service >/dev/null 2>&1
     systemctl disable udp-custom.service >/dev/null 2>&1
-    echo -e "${C_GREEN}🗑️ Removing systemd service file...${C_RESET}"
+    echo -e "${C_GREEN}🗑️ Eliminación del archivo de servicio de systemd...${C_RESET}"
     rm -f "$UDP_CUSTOM_SERVICE_FILE"
     rm -f "$UDPGW_SERVICE_FILE"
     systemctl daemon-reload
-    echo -e "${C_GREEN}🗑️ Removing udp-custom directory and files...${C_RESET}"
+    echo -e "${C_GREEN}🗑️ Eliminando el directorio y los archivos de udp-custom...${C_RESET}"
     rm -rf "$UDP_CUSTOM_DIR"
     rm -f "$UDPGW_BINARY"
-    echo -e "${C_GREEN}✅ udp-custom has been uninstalled successfully.${C_RESET}"
+    echo -e "${C_GREEN}✅ udp-custom se ha desinstalado correctamente.${C_RESET}"
 }
 
 
@@ -2391,36 +2391,36 @@ ensure_badvpn_service_is_quiet() {
 
 install_badvpn() {
     clear; show_banner
-    echo -e "${C_BOLD}${C_PURPLE}--- 🚀 Installing badvpn (udpgw) ---${C_RESET}"
+    echo -e "${C_BOLD}${C_PURPLE}--- 🚀 Instalación de badvpn (udpgw) ---${C_RESET}"
     if [ -f "$BADVPN_SERVICE_FILE" ]; then
-        echo -e "\n${C_YELLOW}ℹ️ badvpn is already installed.${C_RESET}"
+        echo -e "\n${C_YELLOW}ℹ️ Badvpn ya está instalado.${C_RESET}"
         return
     fi
     check_and_open_firewall_port 7300 udp || return
-    echo -e "\n${C_GREEN}🔄 Updating package lists...${C_RESET}"
+    echo -e "\n${C_GREEN}🔄 Actualizando las listas de paquetes...${C_RESET}"
     ff_apt_update || return
-    echo -e "\n${C_GREEN}📦 Installing all required packages...${C_RESET}"
+    echo -e "\n${C_GREEN}📦 Instalando todos los paquetes necesarios...${C_RESET}"
     ff_pkg_install cmake g++ make screen git build-essential libssl-dev libnspr4-dev libnss3-dev pkg-config || {
-        echo -e "${C_RED}❌ Failed to install badvpn build dependencies.${C_RESET}"
+        echo -e "${C_RED}❌ No se pudieron instalar las dependencias de compilación de badvpn.${C_RESET}"
         return
     }
-    echo -e "\n${C_GREEN}📥 Cloning badvpn from github...${C_RESET}"
+    echo -e "\n${C_GREEN}📥 Clonar badvpn desde GitHub...${C_RESET}"
     git clone https://github.com/ambrop72/badvpn.git "$BADVPN_BUILD_DIR"
-    cd "$BADVPN_BUILD_DIR" || { echo -e "${C_RED}❌ Failed to change directory to build folder.${C_RESET}"; return; }
-    echo -e "\n${C_GREEN}⚙️ Running CMake...${C_RESET}"
-    cmake . || { echo -e "${C_RED}❌ CMake configuration failed.${C_RESET}"; rm -rf "$BADVPN_BUILD_DIR"; return; }
+    cd "$BADVPN_BUILD_DIR" || { echo -e "${C_RED}❌ No se pudo cambiar el directorio a la carpeta de compilación.${C_RESET}"; return; }
+    echo -e "\n${C_GREEN}⚙️ Ejecución de CMake...${C_RESET}"
+    cmake . || { echo -e "${C_RED}❌ La configuración de CMake ha fallado.${C_RESET}"; rm -rf "$BADVPN_BUILD_DIR"; return; }
     echo -e "\n${C_GREEN}🛠️ Compiling source...${C_RESET}"
-    make || { echo -e "${C_RED}❌ Compilation (make) failed.${C_RESET}"; rm -rf "$BADVPN_BUILD_DIR"; return; }
+    make || { echo -e "${C_RED}❌ la compilación (make) falló.${C_RESET}"; rm -rf "$BADVPN_BUILD_DIR"; return; }
     local badvpn_binary
     badvpn_binary=$(find "$BADVPN_BUILD_DIR" -name "badvpn-udpgw" -type f | head -n 1)
     if [[ -z "$badvpn_binary" || ! -f "$badvpn_binary" ]]; then
-        echo -e "${C_RED}❌ ERROR: Could not find the compiled 'badvpn-udpgw' binary after compilation.${C_RESET}"
+        echo -e "${C_RED}❌ ERROR: No se pudo encontrar el binario compilado 'badvpn-udpgw' tras la compilación..${C_RESET}"
         rm -rf "$BADVPN_BUILD_DIR"
         return
     fi
-    echo -e "${C_GREEN}ℹ️ Found binary at: $badvpn_binary${C_RESET}"
+    echo -e "${C_GREEN}ℹ️ Encontrado binario en: $badvpn_binary${C_RESET}"
     chmod +x "$badvpn_binary"
-    echo -e "\n${C_GREEN}📝 Creating systemd service file...${C_RESET}"
+    echo -e "\n${C_GREEN}📝 creación de un archivo de servicio de systemd...${C_RESET}"
     cat > "$BADVPN_SERVICE_FILE" <<-EOF
 [Unit]
 Description=BadVPN UDP Gateway
@@ -2435,35 +2435,35 @@ StandardError=null
 [Install]
 WantedBy=multi-user.target
 EOF
-    echo -e "\n${C_GREEN}▶️ Enabling and starting badvpn service...${C_RESET}"
+    echo -e "\n${C_GREEN}▶️ Habilitar e iniciar el servicio badvpn...${C_RESET}"
     systemctl daemon-reload
     systemctl enable badvpn.service
     systemctl start badvpn.service
     sleep 2
     if systemctl is-active --quiet badvpn; then
-        echo -e "\n${C_GREEN}✅ SUCCESS: badvpn (udpgw) is installed and active on port 7300.${C_RESET}"
+        echo -e "\n${C_GREEN}✅ ÉXITO: ​​badvpn (udpgw) está instalado y activo en el puerto 7300.${C_RESET}"
     else
-        echo -e "\n${C_RED}❌ ERROR: badvpn service failed to start.${C_RESET}"
-        echo -e "${C_YELLOW}ℹ️ Displaying last 15 lines of the service log for diagnostics:${C_RESET}"
+        echo -e "\n${C_RED}❌ ERROR: el servicio badvpn no pudo iniciarse.${C_RESET}"
+        echo -e "${C_YELLOW}ℹ️ Se muestran las últimas 15 líneas del registro del servicio para fines de diagnóstico:${C_RESET}"
         journalctl -u badvpn.service -n 15 --no-pager
     fi
 }
 
 uninstall_badvpn() {
-    echo -e "\n${C_BOLD}${C_PURPLE}--- 🗑️ Uninstalling badvpn (udpgw) ---${C_RESET}"
+    echo -e "\n${C_BOLD}${C_PURPLE}--- 🗑️ Desinstalación de badvpn (udpgw) ---${C_RESET}"
     if [ ! -f "$BADVPN_SERVICE_FILE" ]; then
-        echo -e "${C_YELLOW}ℹ️ badvpn is not installed, skipping.${C_RESET}"
+        echo -e "${C_YELLOW}ℹ️ badvpn no está instalado; se omite.${C_RESET}"
         return
     fi
-    echo -e "${C_GREEN}🛑 Stopping and disabling badvpn service...${C_RESET}"
+    echo -e "${C_GREEN}🛑 Detener y deshabilitar el servicio badvpn...${C_RESET}"
     systemctl stop badvpn.service >/dev/null 2>&1
     systemctl disable badvpn.service >/dev/null 2>&1
-    echo -e "${C_GREEN}🗑️ Removing systemd service file...${C_RESET}"
+    echo -e "${C_GREEN}🗑️ Eliminación del archivo de servicio de systemd...${C_RESET}"
     rm -f "$BADVPN_SERVICE_FILE"
     systemctl daemon-reload
-    echo -e "${C_GREEN}🗑️ Removing badvpn build directory...${C_RESET}"
+    echo -e "${C_GREEN}🗑️ Eliminando el directorio de compilación de badvpn...${C_RESET}"
     rm -rf "$BADVPN_BUILD_DIR"
-    echo -e "${C_GREEN}✅ badvpn has been uninstalled successfully.${C_RESET}"
+    echo -e "${C_GREEN}✅ badvpn se ha desinstalado correctamente.${C_RESET}"
 }
 
 load_edge_cert_info() {
@@ -2529,14 +2529,14 @@ ensure_edge_stack_packages() {
     command -v openssl &> /dev/null || missing_packages+=("openssl")
 
     if (( ${#missing_packages[@]} > 0 )); then
-        echo -e "\n${C_BLUE}📦 Installing required packages: ${missing_packages[*]}${C_RESET}"
+        echo -e "\n${C_BLUE}📦 Instalación de los paquetes necesarios: ${missing_packages[*]}${C_RESET}"
         if ! ff_pkg_install "${missing_packages[@]}"; then
-            echo -e "${C_YELLOW}⚠️ Package installation failed. Attempting to fix broken configurations...${C_RESET}"
+            echo -e "${C_YELLOW}⚠️ La instalación del paquete ha fallado. Se está intentando corregir configuraciones dañadas....${C_RESET}"
             if command -v apt-get &>/dev/null; then
                 apt-get purge -y nginx nginx-common haproxy >/dev/null 2>&1
             fi
             if ! ff_pkg_install "${missing_packages[@]}"; then
-                echo -e "${C_RED}❌ Failed to install the required packages.${C_RESET}"
+                echo -e "${C_RED}❌ No se pudieron instalar los paquetes necesarios.${C_RESET}"
                 return 1
             fi
         fi
@@ -2546,7 +2546,7 @@ ensure_edge_stack_packages() {
 
 build_shared_tls_bundle() {
     if [ ! -s "$SSL_CERT_CHAIN_FILE" ] || [ ! -s "$SSL_CERT_KEY_FILE" ]; then
-        echo -e "${C_RED}❌ Certificate chain or key is missing.${C_RESET}"
+        echo -e "${C_RED}❌ Falta la cadena de certificados o la clave.${C_RESET}"
         return 1
     fi
     cat "$SSL_CERT_CHAIN_FILE" "$SSL_CERT_KEY_FILE" > "$SSL_CERT_FILE" || return 1
@@ -2558,32 +2558,32 @@ build_shared_tls_bundle() {
 generate_self_signed_edge_cert() {
     local common_name="$1"
     mkdir -p "$SSL_CERT_DIR"
-    echo -e "\n${C_GREEN}🔐 Generating a shared self-signed certificate...${C_RESET}"
+    echo -e "\n${C_GREEN}🔐 Generando un certificado autofirmado compartido...${C_RESET}"
     openssl req -x509 -newkey rsa:2048 -nodes -days 3650 \
         -keyout "$SSL_CERT_KEY_FILE" \
         -out "$SSL_CERT_CHAIN_FILE" \
         -subj "/CN=$common_name" \
         >/dev/null 2>&1 || {
-            echo -e "${C_RED}❌ Failed to generate the self-signed certificate.${C_RESET}"
+            echo -e "${C_RED}❌ No se pudo generar el certificado autofirmado.${C_RESET}"
             return 1
         }
     build_shared_tls_bundle || return 1
     save_edge_cert_info "self-signed" "$common_name" ""
-    echo -e "${C_GREEN}✅ Shared certificate created for ${C_YELLOW}$common_name${C_RESET}"
+    echo -e "${C_GREEN}✅ Certificado compartido creado para ${C_YELLOW}$common_name${C_RESET}"
     return 0
 }
 
 _install_certbot() {
     if command -v certbot &> /dev/null; then
-        echo -e "${C_GREEN}✅ Certbot is already installed.${C_RESET}"
+        echo -e "${C_GREEN}✅ Certbot ya está instalado.${C_RESET}"
         return 0
     fi
     echo -e "${C_BLUE}📦 Installing Certbot...${C_RESET}"
     ff_pkg_install certbot || {
-        echo -e "${C_RED}❌ Failed to install Certbot.${C_RESET}"
+        echo -e "${C_RED}❌ No se pudo instalar Certbot.${C_RESET}"
         return 1
     }
-    echo -e "${C_GREEN}✅ Certbot installed successfully.${C_RESET}"
+    echo -e "${C_GREEN}✅ Certbot se ha instalado correctamente.${C_RESET}"
     return 0
 }
 
@@ -2599,7 +2599,7 @@ obtain_certbot_edge_cert() {
     if systemctl is-active --quiet haproxy; then restart_haproxy=1; fi
     if systemctl is-active --quiet nginx; then restart_nginx=1; fi
 
-    echo -e "\n${C_BLUE}🛑 Stopping HAProxy and Nginx for Certbot validation...${C_RESET}"
+    echo -e "\n${C_BLUE}🛑 Detención de HAProxy y Nginx para la validación de Certbot...${C_RESET}"
     systemctl stop haproxy >/dev/null 2>&1
     systemctl stop nginx >/dev/null 2>&1
     sleep 2
@@ -2610,11 +2610,11 @@ obtain_certbot_edge_cert() {
         return 1
     }
 
-    echo -e "\n${C_BLUE}🚀 Requesting a Certbot certificate for ${C_YELLOW}$domain_name${C_RESET}"
+    echo -e "\n${C_BLUE}🚀 Solicitar un certificado Certbot para ${C_YELLOW}$domain_name${C_RESET}"
     certbot certonly --standalone -d "$domain_name" --non-interactive --agree-tos -m "$email"
     if [ $? -ne 0 ]; then
-        echo -e "\n${C_RED}❌ Certbot failed to obtain a certificate.${C_RESET}"
-        echo -e "${C_YELLOW}ℹ️ Make sure the domain points to this server and port 80 is reachable.${C_RESET}"
+        echo -e "\n${C_RED}❌ Certbot no pudo obtener un certificado.${C_RESET}"
+        echo -e "${C_YELLOW}ℹ️ Asegúrate de que el dominio apunte a este servidor y de que el puerto 80 sea accesible..${C_RESET}"
         [[ "$restart_nginx" -eq 1 ]] && systemctl start nginx >/dev/null 2>&1
         [[ "$restart_haproxy" -eq 1 ]] && systemctl start haproxy >/dev/null 2>&1
         return 1
@@ -2623,7 +2623,7 @@ obtain_certbot_edge_cert() {
     local certbot_chain="/etc/letsencrypt/live/$domain_name/fullchain.pem"
     local certbot_key="/etc/letsencrypt/live/$domain_name/privkey.pem"
     if [ ! -f "$certbot_chain" ] || [ ! -f "$certbot_key" ]; then
-        echo -e "\n${C_RED}❌ Certbot completed, but the certificate files were not found.${C_RESET}"
+        echo -e "\n${C_RED}❌ Certbot ha finalizado, pero no se han encontrado los archivos del certificado.${C_RESET}"
         [[ "$restart_nginx" -eq 1 ]] && systemctl start nginx >/dev/null 2>&1
         [[ "$restart_haproxy" -eq 1 ]] && systemctl start haproxy >/dev/null 2>&1
         return 1
@@ -2637,7 +2637,7 @@ obtain_certbot_edge_cert() {
         return 1
     }
     save_edge_cert_info "certbot" "$domain_name" "$email"
-    echo -e "${C_GREEN}✅ Certbot certificate copied into ${C_YELLOW}$SSL_CERT_DIR${C_RESET}"
+    echo -e "${C_GREEN}✅ Certificado de Certbot copiado en ${C_YELLOW}$SSL_CERT_DIR${C_RESET}"
     return 0
 }
 
@@ -2657,43 +2657,43 @@ select_edge_certificate() {
 
     load_edge_cert_info
 
-    echo -e "\n${C_BOLD}${C_PURPLE}--- 🔐 Shared TLS Certificate ---${C_RESET}"
-    echo -e "${C_DIM}The same certificate will be used by HAProxy and the internal Nginx proxy.${C_RESET}"
+    echo -e "\n${C_BOLD}${C_PURPLE}--- 🔐 Certificado TLS compartido ---${C_RESET}"
+    echo -e "${C_DIM}El mismo certificado será utilizado por HAProxy y por el proxy Nginx interno.${C_RESET}"
 
     if $has_existing_cert; then
         local existing_label="${EDGE_CERT_MODE:-existing}"
         if [[ -n "$EDGE_DOMAIN" ]]; then
             existing_label="$existing_label - $EDGE_DOMAIN"
         fi
-        printf "  ${C_CHOICE}[ 1]${C_RESET} %-52s\n" "Reuse existing certificate (${existing_label})"
-        printf "  ${C_CHOICE}[ 2]${C_RESET} %-52s\n" "Replace with a new self-signed certificate"
-        printf "  ${C_CHOICE}[ 3]${C_RESET} %-52s\n" "Replace with a Certbot certificate"
+        printf "  ${C_CHOICE}[ 1]${C_RESET} %-52s\n" "Reutilizar el certificado existente (${existing_label})"
+        printf "  ${C_CHOICE}[ 2]${C_RESET} %-52s\n" "Reemplazar por un nuevo certificado autofirmado"
+        printf "  ${C_CHOICE}[ 3]${C_RESET} %-52s\n" "Reemplazar con un certificado de Certbot"
         echo
-        read -p "👉 Enter choice [1]: " cert_choice
+        read -p "👉 Introduce tu elección [1]: " cert_choice
         cert_choice=${cert_choice:-1}
     else
-        printf "  ${C_CHOICE}[ 1]${C_RESET} %-52s\n" "Generate a self-signed certificate"
-        printf "  ${C_CHOICE}[ 2]${C_RESET} %-52s\n" "Use a Certbot certificate"
+        printf "  ${C_CHOICE}[ 1]${C_RESET} %-52s\n" "Generar un certificado autofirmado"
+        printf "  ${C_CHOICE}[ 2]${C_RESET} %-52s\n" "Utiliza un certificado de Certbot"
         echo
-        read -p "👉 Enter choice [1]: " cert_choice
+        read -p "👉 Introduce tu elección [1]: " cert_choice
         cert_choice=${cert_choice:-1}
     fi
 
     case "$cert_choice" in
         1)
             if $has_existing_cert; then
-                echo -e "${C_GREEN}✅ Reusing the existing shared certificate.${C_RESET}"
+                echo -e "${C_GREEN}✅ Reutilización del certificado compartido existente.${C_RESET}"
                 return 0
             fi
             local common_name
-            read -p "👉 Enter the certificate Common Name / SNI label [$preferred_host]: " common_name
+            read -p "👉 Introduzca el nombre común/etiqueta SNI del certificado. [$preferred_host]: " common_name
             common_name=${common_name:-$preferred_host}
             generate_self_signed_edge_cert "$common_name"
             ;;
         2)
             if $has_existing_cert; then
                 local common_name
-                read -p "👉 Enter the certificate Common Name / SNI label [$preferred_host]: " common_name
+                read -p "👉 Introduzca el nombre común/etiqueta SNI del certificado. [$preferred_host]: " common_name
                 common_name=${common_name:-$preferred_host}
                 generate_self_signed_edge_cert "$common_name"
             else
@@ -2704,22 +2704,22 @@ select_edge_certificate() {
                     default_domain="$preferred_host"
                 fi
                 if [[ -n "$default_domain" ]]; then
-                    read -p "👉 Enter your domain name [$default_domain]: " domain_name
+                    read -p "👉 Introduce tu nombre de dominio [$default_domain]: " domain_name
                     domain_name=${domain_name:-$default_domain}
                 else
-                    read -p "👉 Enter your domain name (e.g. vpn.example.com): " domain_name
+                    read -p "👉 Introduce tu nombre de dominio (e.j. fixxed.site): " domain_name
                 fi
                 if [[ -z "$domain_name" ]]; then
-                    echo -e "${C_RED}❌ Domain name cannot be empty.${C_RESET}"
+                    echo -e "${C_RED}❌ El nombre de dominio no puede estar vacío.${C_RESET}"
                     return 1
                 fi
                 if _is_valid_ipv4 "$domain_name"; then
-                    echo -e "${C_RED}❌ Certbot requires a real domain name, not a raw IP address.${C_RESET}"
+                    echo -e "${C_RED}❌ Certbot requiere un nombre de dominio real, no una dirección IP sin procesar..${C_RESET}"
                     return 1
                 fi
-                read -p "👉 Enter your email for Let's Encrypt: " email
+                read -p "👉 Introduce tu correo electrónico para Let's Encrypt: " email
                 if [[ -z "$email" ]]; then
-                    echo -e "${C_RED}❌ Email cannot be empty.${C_RESET}"
+                    echo -e "${C_RED}❌ El correo electrónico no puede estar vacío.${C_RESET}"
                     return 1
                 fi
                 obtain_certbot_edge_cert "$domain_name" "$email"
@@ -2727,7 +2727,7 @@ select_edge_certificate() {
             ;;
         3)
             if ! $has_existing_cert; then
-                echo -e "${C_RED}❌ Invalid option.${C_RESET}"
+                echo -e "${C_RED}❌ Opción no válida.${C_RESET}"
                 return 1
             fi
             local default_domain=""
@@ -2740,29 +2740,29 @@ select_edge_certificate() {
                 default_domain="$preferred_host"
             fi
             if [[ -n "$default_domain" ]]; then
-                read -p "👉 Enter your domain name [$default_domain]: " domain_name
+                read -p "👉 Introduce tu nombre de dominio [$default_domain]: " domain_name
                 domain_name=${domain_name:-$default_domain}
             else
-                read -p "👉 Enter your domain name (e.g. vpn.example.com): " domain_name
+                read -p "👉 Introduce tu nombre de dominio (e.j. fixxed.site): " domain_name
             fi
             if [[ -z "$domain_name" ]]; then
-                echo -e "${C_RED}❌ Domain name cannot be empty.${C_RESET}"
+                echo -e "${C_RED}❌ El nombre de dominio no puede estar vacío.${C_RESET}"
                 return 1
             fi
             if _is_valid_ipv4 "$domain_name"; then
-                echo -e "${C_RED}❌ Certbot requires a real domain name, not a raw IP address.${C_RESET}"
+                echo -e "${C_RED}❌ Certbot requiere un nombre de dominio real, no una dirección IP sin procesar.${C_RESET}"
                 return 1
             fi
-            read -p "👉 Enter your email for Let's Encrypt [${EDGE_EMAIL}]: " email
+            read -p "👉 Introduce tu correo electrónico para Let's Encrypt [${EDGE_EMAIL}]: " email
             email=${email:-$EDGE_EMAIL}
             if [[ -z "$email" ]]; then
-                echo -e "${C_RED}❌ Email cannot be empty.${C_RESET}"
+                echo -e "${C_RED}❌ El correo electrónico no puede estar vacío.${C_RESET}"
                 return 1
             fi
             obtain_certbot_edge_cert "$domain_name" "$email"
             ;;
         *)
-            echo -e "${C_RED}❌ Invalid option.${C_RESET}"
+            echo -e "${C_RED}❌ Opción no válida.${C_RESET}"
             return 1
             ;;
     esac
@@ -2935,22 +2935,22 @@ configure_edge_stack() {
 
     backup_edge_configs
 
-    echo -e "\n${C_BLUE}📝 Writing internal Nginx config (127.0.0.1:${NGINX_INTERNAL_HTTP_PORT}/${NGINX_INTERNAL_TLS_PORT})...${C_RESET}"
+    echo -e "\n${C_BLUE}📝 Redacción de la configuración interna de Nginx (127.0.0.1:${NGINX_INTERNAL_HTTP_PORT}/${NGINX_INTERNAL_TLS_PORT})...${C_RESET}"
     write_internal_nginx_config "$server_name"
 
-    echo -e "${C_BLUE}📝 Writing HAProxy edge config (${EDGE_PUBLIC_HTTP_PORT}/${EDGE_PUBLIC_TLS_PORT})...${C_RESET}"
+    echo -e "${C_BLUE}📝 Redacción de la configuración del Edge de HAProxy (${EDGE_PUBLIC_HTTP_PORT}/${EDGE_PUBLIC_TLS_PORT})...${C_RESET}"
     write_haproxy_edge_config
 
-    echo -e "\n${C_BLUE}🧪 Validating Nginx configuration...${C_RESET}"
+    echo -e "\n${C_BLUE}🧪 Validación de la configuración de Nginx...${C_RESET}"
     if ! nginx -t >/dev/null 2>&1; then
-        echo -e "${C_RED}❌ Nginx configuration validation failed.${C_RESET}"
+        echo -e "${C_RED}❌ La validación de la configuración de Nginx ha fallado.${C_RESET}"
         nginx -t
         return 1
     fi
 
-    echo -e "${C_BLUE}🧪 Validating HAProxy configuration...${C_RESET}"
+    echo -e "${C_BLUE}🧪 Validación de la configuración de HAProxy...${C_RESET}"
     if ! haproxy -c -f "$HAPROXY_CONFIG" >/dev/null 2>&1; then
-        echo -e "${C_RED}❌ HAProxy configuration validation failed.${C_RESET}"
+        echo -e "${C_RED}❌ La validación de la configuración de HAProxy ha fallado.${C_RESET}"
         haproxy -c -f "$HAPROXY_CONFIG"
         return 1
     fi
@@ -2959,28 +2959,28 @@ configure_edge_stack() {
     systemctl enable nginx >/dev/null 2>&1
     systemctl enable haproxy >/dev/null 2>&1
 
-    echo -e "\n${C_BLUE}▶️ Restarting internal Nginx...${C_RESET}"
+    echo -e "\n${C_BLUE}▶️ Reiniciando el Nginx interno...${C_RESET}"
     systemctl restart nginx || {
-        echo -e "${C_RED}❌ Nginx failed to restart.${C_RESET}"
+        echo -e "${C_RED}❌ Nginx no pudo reiniciarse.${C_RESET}"
         systemctl status nginx --no-pager
         return 1
     }
 
-    echo -e "${C_BLUE}▶️ Restarting HAProxy edge...${C_RESET}"
+    echo -e "${C_BLUE}▶️ Reiniciando HAProxy edge...${C_RESET}"
     systemctl restart haproxy || {
-        echo -e "${C_RED}❌ HAProxy failed to restart.${C_RESET}"
+        echo -e "${C_RED}❌ HAProxy no pudo reiniciarse.${C_RESET}"
         systemctl status haproxy --no-pager
         return 1
     }
 
     sleep 2
     if ! systemctl is-active --quiet nginx; then
-        echo -e "${C_RED}❌ Nginx is not active after restart.${C_RESET}"
+        echo -e "${C_RED}❌ Nginx no está activo después de reiniciar.${C_RESET}"
         systemctl status nginx --no-pager
         return 1
     fi
     if ! systemctl is-active --quiet haproxy; then
-        echo -e "${C_RED}❌ HAProxy is not active after restart.${C_RESET}"
+        echo -e "${C_RED}❌ HAProxy no está activo después de reiniciar.${C_RESET}"
         systemctl status haproxy --no-pager
         return 1
     fi
@@ -2991,17 +2991,17 @@ configure_edge_stack() {
 
 install_ssl_tunnel() {
     clear; show_banner
-    echo -e "${C_BOLD}${C_PURPLE}--- 🚀 Installing HAProxy Edge Stack (80/443 -> 8880/8443) ---${C_RESET}"
-    echo -e "\n${C_CYAN}This installer will configure:${C_RESET}"
-    echo -e "   • HAProxy on ${C_WHITE}${EDGE_PUBLIC_HTTP_PORT}/${EDGE_PUBLIC_TLS_PORT}${C_RESET}"
-    echo -e "   • Internal Nginx on ${C_WHITE}${NGINX_INTERNAL_HTTP_PORT}/${NGINX_INTERNAL_TLS_PORT}${C_RESET}"
-    echo -e "   • Loopback SSL decryptor on ${C_WHITE}${HAPROXY_INTERNAL_DECRYPT_PORT}${C_RESET}"
+    echo -e "${C_BOLD}${C_PURPLE}--- 🚀 Instalación de HAProxy Edge Stack (80/443 -> 8880/8443) ---${C_RESET}"
+    echo -e "\n${C_CYAN}Este instalador configurará:${C_RESET}"
+    echo -e "   • HAProxy en ${C_WHITE}${EDGE_PUBLIC_HTTP_PORT}/${EDGE_PUBLIC_TLS_PORT}${C_RESET}"
+    echo -e "   • Nginx interno activado ${C_WHITE}${NGINX_INTERNAL_HTTP_PORT}/${NGINX_INTERNAL_TLS_PORT}${C_RESET}"
+    echo -e "   • Descifrador SSL de bucle invertido en ${C_WHITE}${HAPROXY_INTERNAL_DECRYPT_PORT}${C_RESET}"
 
     if [ -f "$HAPROXY_CONFIG" ] || [ -f "$NGINX_CONFIG_FILE" ]; then
-        echo -e "\n${C_YELLOW}⚠️ Existing HAProxy/Nginx configs will be replaced with the FirewallFalcon edge layout.${C_RESET}"
-        read -p "👉 Continue with the replacement? (y/n): " confirm_replace
+        echo -e "\n${C_YELLOW}⚠️ Las configuraciones existentes de HAProxy/Nginx serán reemplazadas por la estructura de borde (edge ​​layout) de FirewallFalcon.${C_RESET}"
+        read -p "👉 ¿Continuar con el reemplazo? (y/n): " confirm_replace
         if [[ "$confirm_replace" != "y" && "$confirm_replace" != "Y" ]]; then
-            echo -e "${C_RED}❌ Installation cancelled.${C_RESET}"
+            echo -e "${C_RED}❌ Instalación cancelada.${C_RESET}"
             return
         fi
     fi
@@ -3033,17 +3033,17 @@ install_ssl_tunnel() {
     configure_edge_stack "$server_name" || return
 
     echo -e "\n${C_GREEN}✅ SUCCESS: HAProxy edge stack is active.${C_RESET}"
-    echo -e "   • Public edge ports: ${C_YELLOW}${EDGE_PUBLIC_HTTP_PORT}/${EDGE_PUBLIC_TLS_PORT}${C_RESET}"
-    echo -e "   • Internal Nginx ports: ${C_YELLOW}${NGINX_INTERNAL_HTTP_PORT}/${NGINX_INTERNAL_TLS_PORT}${C_RESET}"
-    echo -e "   • Shared certificate: ${C_YELLOW}${EDGE_CERT_MODE:-unknown}${C_RESET}"
+    echo -e "   • Puertos edge publico: ${C_YELLOW}${EDGE_PUBLIC_HTTP_PORT}/${EDGE_PUBLIC_TLS_PORT}${C_RESET}"
+    echo -e "   • Puertos internos de Nginx: ${C_YELLOW}${NGINX_INTERNAL_HTTP_PORT}/${NGINX_INTERNAL_TLS_PORT}${C_RESET}"
+    echo -e "   • Certificado compartido: ${C_YELLOW}${EDGE_CERT_MODE:-unknown}${C_RESET}"
 }
 
 uninstall_ssl_tunnel() {
-    echo -e "\n${C_BOLD}${C_PURPLE}--- 🗑️ Uninstalling HAProxy Edge Stack ---${C_RESET}"
+    echo -e "\n${C_BOLD}${C_PURPLE}--- 🗑️ Desinstalando HAProxy Edge Stack ---${C_RESET}"
     if ! command -v haproxy &> /dev/null; then
-        echo -e "${C_YELLOW}ℹ️ HAProxy is not installed, skipping service removal.${C_RESET}"
+        echo -e "${C_YELLOW}ℹ️ HAProxy no está instalado; se omite la eliminación del servicio.${C_RESET}"
     else
-        echo -e "${C_GREEN}🛑 Stopping and disabling HAProxy...${C_RESET}"
+        echo -e "${C_GREEN}🛑 Detención y desactivación de HAProxy...${C_RESET}"
         systemctl stop haproxy >/dev/null 2>&1
         systemctl disable haproxy >/dev/null 2>&1
     fi
@@ -3064,14 +3064,14 @@ EOF
         delete_cert="y"
     elif [ -f "$SSL_CERT_FILE" ] || [ -f "$SSL_CERT_CHAIN_FILE" ] || [ -f "$SSL_CERT_KEY_FILE" ]; then
         if systemctl is-active --quiet nginx; then
-            echo -e "${C_YELLOW}⚠️ The shared certificate is also used by the internal Nginx proxy.${C_RESET}"
+            echo -e "${C_YELLOW}⚠️ El certificado compartido también es utilizado por el proxy Nginx interno.${C_RESET}"
         fi
-        read -p "👉 Delete the shared TLS certificate too? (y/n): " delete_cert
+        read -p "👉 ¿Eliminar también el certificado TLS compartido? (y/n): " delete_cert
     fi
 
     if [[ "$delete_cert" == "y" || "$delete_cert" == "Y" ]]; then
         if systemctl is-active --quiet nginx; then
-            echo -e "${C_GREEN}🛑 Stopping Nginx because the shared certificate is being removed...${C_RESET}"
+            echo -e "${C_GREEN}🛑 Se detiene Nginx porque se va a eliminar el certificado compartido....${C_RESET}"
             systemctl stop nginx >/dev/null 2>&1
         fi
         rm -f "$SSL_CERT_FILE" "$SSL_CERT_CHAIN_FILE" "$SSL_CERT_KEY_FILE" "$EDGE_CERT_INFO_FILE"
@@ -3079,9 +3079,9 @@ EOF
         echo -e "${C_GREEN}🗑️ Shared certificate files removed.${C_RESET}"
     fi
 
-    echo -e "${C_GREEN}✅ HAProxy edge stack has been removed.${C_RESET}"
+    echo -e "${C_GREEN}✅ Se ha eliminado la pila perimetral (edge ​​stack) de HAProxy..${C_RESET}"
     if systemctl is-active --quiet nginx; then
-        echo -e "${C_DIM}The internal Nginx proxy is still installed on ${NGINX_INTERNAL_HTTP_PORT}/${NGINX_INTERNAL_TLS_PORT}.${C_RESET}"
+        echo -e "${C_DIM}El proxy Nginx interno todavía está instalado en ${NGINX_INTERNAL_HTTP_PORT}/${NGINX_INTERNAL_TLS_PORT}.${C_RESET}"
     fi
 }
 
@@ -3089,15 +3089,15 @@ show_dnstt_details() {
     if [ -f "$DNSTT_CONFIG_FILE" ]; then
         source "$DNSTT_CONFIG_FILE"
         echo -e "\n${C_GREEN}=====================================================${C_RESET}"
-        echo -e "${C_GREEN}            📡 DNSTT Connection Details             ${C_RESET}"
+        echo -e "${C_GREEN}            📡 Detalles de la conexión DNSTT             ${C_RESET}"
         echo -e "${C_GREEN}=====================================================${C_RESET}"
-        echo -e "\n${C_WHITE}Your connection details:${C_RESET}"
-        echo -e "  - ${C_CYAN}Tunnel Domain:${C_RESET} ${C_YELLOW}$TUNNEL_DOMAIN${C_RESET}"
-        echo -e "  - ${C_CYAN}Public Key:${C_RESET}    ${C_YELLOW}$PUBLIC_KEY${C_RESET}"
+        echo -e "\n${C_WHITE}Tus datos de conexión:${C_RESET}"
+        echo -e "  - ${C_CYAN}Dominio de túnel:${C_RESET} ${C_YELLOW}$TUNNEL_DOMAIN${C_RESET}"
+        echo -e "  - ${C_CYAN}Clave pública:${C_RESET}    ${C_YELLOW}$PUBLIC_KEY${C_RESET}"
         if [[ -n "$FORWARD_DESC" ]]; then
-            echo -e "  - ${C_CYAN}Forwarding To:${C_RESET} ${C_YELLOW}$FORWARD_DESC${C_RESET}"
+            echo -e "  - ${C_CYAN}Reenviando a:${C_RESET} ${C_YELLOW}$FORWARD_DESC${C_RESET}"
         else
-            echo -e "  - ${C_CYAN}Forwarding To:${C_RESET} ${C_YELLOW}Unknown (config_missing)${C_RESET}"
+            echo -e "  - ${C_CYAN}Reenviando a:${C_RESET} ${C_YELLOW}Desconocido (config_missing)${C_RESET}"
         fi
         if [[ -n "$MTU_VALUE" ]]; then
             echo -e "  - ${C_CYAN}MTU Value:${C_RESET}     ${C_YELLOW}$MTU_VALUE${C_RESET}"
@@ -3107,28 +3107,28 @@ show_dnstt_details() {
         fi
         
         if [[ "$FORWARD_DESC" == *"V2Ray"* ]]; then
-             echo -e "  - ${C_CYAN}Action Required:${C_RESET} ${C_YELLOW}Ensure a V2Ray service (vless/vmess/trojan) listens on port 8787 (no TLS)${C_RESET}"
+             echo -e "  - ${C_CYAN}Se requiere acción:${C_RESET} ${C_YELLOW}Asegúrese de que un servicio V2Ray (vless/vmess/trojan) escuche en el puerto 8787 (sin TLS)${C_RESET}"
         elif [[ "$FORWARD_DESC" == *"SSH"* ]]; then
-             echo -e "  - ${C_CYAN}Action Required:${C_RESET} ${C_YELLOW}Ensure your SSH client is configured to use the DNS tunnel.${C_RESET}"
+             echo -e "  - ${C_CYAN}Se requiere acción:${C_RESET} ${C_YELLOW}Asegúrate de que tu cliente SSH esté configurado para utilizar el túnel DNS.${C_RESET}"
         fi
         
-        echo -e "\n${C_DIM}Use these details in your client configuration.${C_RESET}"
+        echo -e "\n${C_DIM}Utiliza estos detalles en la configuración de tu cliente..${C_RESET}"
     else
-        echo -e "\n${C_YELLOW}ℹ️ DNSTT configuration file not found. Details are unavailable.${C_RESET}"
+        echo -e "\n${C_YELLOW}ℹ️ No se ha encontrado el archivo de configuración de DNSTT. No hay detalles disponibles.${C_RESET}"
     fi
 }
 
 install_dnstt() {
     clear; show_banner
-    echo -e "${C_BOLD}${C_PURPLE}--- 📡 DNSTT (DNS Tunnel) Management ---${C_RESET}"
+    echo -e "${C_BOLD}${C_PURPLE}--- 📡 Gestión de DNSTT (túnel DNS) ---${C_RESET}"
     if [ -f "$DNSTT_SERVICE_FILE" ]; then
-        echo -e "\n${C_YELLOW}ℹ️ DNSTT is already installed.${C_RESET}"
+        echo -e "\n${C_YELLOW}ℹ️ DNSTT ya está instalado.${C_RESET}"
         show_dnstt_details
         return
     fi
     
     # --- FIX: Force release of Port 53 / Disable systemd-resolved ---
-    echo -e "${C_GREEN}⚙️ Forcing release of Port 53 (stopping systemd-resolved)...${C_RESET}"
+    echo -e "${C_GREEN}⚙️ Forzando la liberación del Puerto 53 (deteniendo systemd-resolved)...${C_RESET}"
     systemctl stop systemd-resolved >/dev/null 2>&1
     systemctl disable systemd-resolved >/dev/null 2>&1
     # Mask it so it never starts again on reboot
@@ -3139,30 +3139,30 @@ install_dnstt() {
     chattr +i /etc/resolv.conf
     # ----------------------------------------------------------------
     
-    echo -e "\n${C_BLUE}🔎 Checking if port 53 (UDP) is available...${C_RESET}"
+    echo -e "\n${C_BLUE}🔎 Comprobando si el puerto 53 (UDP) está disponible...${C_RESET}"
     if ss -lunp | grep -q ':53\s'; then
         if [[ $(ps -p $(ss -lunp | grep ':53\s' | grep -oP 'pid=\K[0-9]+') -o comm=) == "systemd-resolve" ]]; then
-            echo -e "${C_YELLOW}⚠️ Warning: Port 53 is in use by 'systemd-resolved'.${C_RESET}"
-            echo -e "${C_YELLOW}This is the system's DNS stub resolver. It must be disabled to run DNSTT.${C_RESET}"
-            read -p "👉 Allow the script to automatically disable it and reconfigure DNS? (y/n): " resolve_confirm
+            echo -e "${C_YELLOW}⚠️ Advertencia: El puerto 53 está siendo utilizado por 'systemd-resolved'.${C_RESET}"
+            echo -e "${C_YELLOW}Este es el «stub resolver» DNS del sistema. Debe estar deshabilitado para ejecutar DNSTT..${C_RESET}"
+            read -p "👉 ¿Permitir que el script lo deshabilite automáticamente y reconfigure el DNS? (y/n): " resolve_confirm
             if [[ "$resolve_confirm" == "y" || "$resolve_confirm" == "Y" ]]; then
-                echo -e "${C_GREEN}⚙️ Stopping and disabling systemd-resolved to free port 53...${C_RESET}"
+                echo -e "${C_GREEN}⚙️ Detener y deshabilitar systemd-resolved para liberar el puerto 53...${C_RESET}"
                 systemctl stop systemd-resolved
                 systemctl disable systemd-resolved
                 chattr -i /etc/resolv.conf &>/dev/null
                 rm -f /etc/resolv.conf
                 echo "nameserver 8.8.8.8" > /etc/resolv.conf
                 chattr +i /etc/resolv.conf
-                echo -e "${C_GREEN}✅ Port 53 has been freed and DNS set to 8.8.8.8.${C_RESET}"
+                echo -e "${C_GREEN}✅ El puerto 53 ha sido liberado y el DNS está configurado en 8.8.8.8.${C_RESET}"
             else
-                echo -e "${C_RED}❌ Cannot proceed without freeing port 53. Aborting.${C_RESET}"
+                echo -e "${C_RED}❌ No es posible continuar sin liberar el puerto 53. Abortando.${C_RESET}"
                 return
             fi
         else
             check_and_free_ports "53" || return
         fi
     else
-        echo -e "${C_GREEN}✅ Port 53 (UDP) is free to use.${C_RESET}"
+        echo -e "${C_GREEN}✅ El puerto 53 (UDP) está disponible para su uso.${C_RESET}"
     fi
 
     check_and_open_firewall_port 53 udp || return
@@ -3171,24 +3171,24 @@ install_dnstt() {
 
     local forward_port=""
     local forward_desc=""
-    echo -e "\n${C_BLUE}Please choose where DNSTT should forward traffic:${C_RESET}"
-    echo -e "  ${C_GREEN}[ 1]${C_RESET} ➡️ Forward to local SSH service (port 22)"
-    echo -e "  ${C_GREEN}[ 2]${C_RESET} ➡️ Forward to local V2Ray backend (port 8787)"
-    read -p "👉 Enter your choice [2]: " fwd_choice
+    echo -e "\n${C_BLUE}Por favor, elige a dónde debe reenviar el tráfico DNSTT.:${C_RESET}"
+    echo -e "  ${C_GREEN}[ 1]${C_RESET} ➡️ Reenviar al servicio SSH local (port 22)"
+    echo -e "  ${C_GREEN}[ 2]${C_RESET} ➡️ Reenviar al backend local de V2Ray (port 8787)"
+    read -p "👉 Introduce tu elección [2]: " fwd_choice
     fwd_choice=${fwd_choice:-2}
     if [[ "$fwd_choice" == "1" ]]; then
         forward_port="22"
         forward_desc="SSH (port 22)"
-        echo -e "${C_GREEN}ℹ️ DNSTT will forward to SSH on 127.0.0.1:22.${C_RESET}"
+        echo -e "${C_GREEN}ℹ️ DNSTT reenviará a SSH en 127.0.0.1:22.${C_RESET}"
         
 
         
     elif [[ "$fwd_choice" == "2" ]]; then
         forward_port="8787"
         forward_desc="V2Ray (port 8787)"
-        echo -e "${C_GREEN}ℹ️ DNSTT will forward to V2Ray on 127.0.0.1:8787.${C_RESET}"
+        echo -e "${C_GREEN}ℹ️ DNSTT reenviará a V2Ray a través de 127.0.0.1:8787.${C_RESET}"
     else
-        echo -e "${C_RED}❌ Invalid choice. Aborting.${C_RESET}"
+        echo -e "${C_RED}❌ Opción no válida. Cancelando..${C_RESET}"
         return
     fi
     local FORWARD_TARGET="127.0.0.1:$forward_port"
@@ -3200,23 +3200,23 @@ install_dnstt() {
     local TUNNEL_SUBDOMAIN=""
     local HAS_IPV6="false"
 
-    read -p "👉 Auto-generate DNS records or use custom ones? (auto/custom) [auto]: " dns_choice
+    read -p "👉 ¿Generar registros DNS automáticamente o utilizar registros personalizados? (auto/custom) [auto]: " dns_choice
     dns_choice=${dns_choice:-auto}
 
     if [[ "$dns_choice" == "custom" ]]; then
         DNSTT_RECORDS_MANAGED="false"
-        read -p "👉 Enter your full nameserver domain (e.g., ns1.yourdomain.com): " NS_DOMAIN
-        if [[ -z "$NS_DOMAIN" ]]; then echo -e "\n${C_RED}❌ Nameserver domain cannot be empty. Aborting.${C_RESET}"; return; fi
-        read -p "👉 Enter your full tunnel domain (e.g., tun.yourdomain.com): " TUNNEL_DOMAIN
-        if [[ -z "$TUNNEL_DOMAIN" ]]; then echo -e "\n${C_RED}❌ Tunnel domain cannot be empty. Aborting.${C_RESET}"; return; fi
+        read -p "👉 Introduce los nameserver de tu dominio (e.g., ns1.yourdomain.com): " NS_DOMAIN
+        if [[ -z "$NS_DOMAIN" ]]; then echo -e "\n${C_RED}❌ El servidor de nombres (nameserver) del dominio no puede estar vacío. Abortando..${C_RESET}"; return; fi
+        read -p "👉 Introduce tu dominio de túnel completo (e.g., tun.yourdomain.com): " TUNNEL_DOMAIN
+        if [[ -z "$TUNNEL_DOMAIN" ]]; then echo -e "\n${C_RED}❌ El dominio del túnel no puede estar vacío. Abortando..${C_RESET}"; return; fi
     else
         echo -e "\n${C_BLUE}⚙️ Configuring DNS records for DNSTT...${C_RESET}"
         local SERVER_IPV4
         SERVER_IPV4=$(curl -s -4 icanhazip.com)
         if ! _is_valid_ipv4 "$SERVER_IPV4"; then
-            echo -e "\n${C_RED}❌ Error: Could not retrieve a valid public IPv4 address from icanhazip.com.${C_RESET}"
-            echo -e "${C_YELLOW}ℹ️ Please check your server's network connection and DNS resolver settings.${C_RESET}"
-            echo -e "   Output received: '$SERVER_IPV4'"
+            echo -e "\n${C_RED}❌ Error: No se pudo obtener una dirección IPv4 pública válida desde icanhazip.com.${C_RESET}"
+            echo -e "${C_YELLOW}ℹ️ Por favor, comprueba la conexión de red y la configuración del servidor DNS de tu servidor.${C_RESET}"
+            echo -e "   Resultado recibido: '$SERVER_IPV4'"
             return 1
         fi
         
@@ -3250,53 +3250,53 @@ install_dnstt() {
         local RESPONSE_BODY=${CREATE_RESPONSE:0:${#CREATE_RESPONSE}-3}
 
         if [[ "$HTTP_CODE" -ne 201 ]]; then
-            echo -e "${C_RED}❌ Failed to create DNSTT records. API returned HTTP $HTTP_CODE.${C_RESET}"
+            echo -e "${C_RED}❌ No se pudieron crear los registros DNSTT. La API devolvió un código HTTP $HTTP_CODE.${C_RESET}"
             echo "Response: $RESPONSE_BODY" | jq
             return 1
         fi
     fi
     
-    read -p "👉 Enter MTU value (e.g., 512, 1200) or press [Enter] for default: " mtu_value
+    read -p "👉 Introduzca el valor MTU (p. ej., 512, 1200) o pulse [Enter] para el valor predeterminado: " mtu_value
     local mtu_string=""
     if [[ "$mtu_value" =~ ^[0-9]+$ ]]; then
         mtu_string=" -mtu $mtu_value"
-        echo -e "${C_GREEN}ℹ️ Using MTU: $mtu_value${C_RESET}"
+        echo -e "${C_GREEN}ℹ️ Uso de MTU: $mtu_value${C_RESET}"
     else
         mtu_value=""
-        echo -e "${C_YELLOW}ℹ️ Using default MTU.${C_RESET}"
+        echo -e "${C_YELLOW}ℹ️ Uso de la MTU predeterminada.${C_RESET}"
     fi
 
-    echo -e "\n${C_BLUE}📥 Downloading pre-compiled DNSTT server binary...${C_RESET}"
+    echo -e "\n${C_BLUE}📥 Descargando el binario del servidor DNSTT precompilado...${C_RESET}"
     local arch
     arch=$(uname -m)
     local binary_url=""
     if [[ "$arch" == "x86_64" ]]; then
         binary_url="https://dnstt.network/dnstt-server-linux-amd64"
-        echo -e "${C_BLUE}ℹ️ Detected x86_64 (amd64) architecture.${C_RESET}"
+        echo -e "${C_BLUE}ℹ️ Se ha detectado la arquitectura x86_64 (amd64).${C_RESET}"
     elif [[ "$arch" == "aarch64" || "$arch" == "arm64" ]]; then
         binary_url="https://dnstt.network/dnstt-server-linux-arm64"
-        echo -e "${C_BLUE}ℹ️ Detected ARM64 architecture.${C_RESET}"
+        echo -e "${C_BLUE}ℹ️ Arquitectura ARM64 detectada.${C_RESET}"
     else
-        echo -e "\n${C_RED}❌ Unsupported architecture: $arch. Cannot install DNSTT.${C_RESET}"
+        echo -e "\n${C_RED}❌ Arquitectura no compatible: $arch. No es posible instalar DNSTT.${C_RESET}"
         return
     fi
     
     curl -sL "$binary_url" -o "$DNSTT_BINARY"
     if [ $? -ne 0 ]; then
-        echo -e "\n${C_RED}❌ Failed to download the DNSTT binary.${C_RESET}"
+        echo -e "\n${C_RED}❌ No se pudo descargar el binario de DNSTT.${C_RESET}"
         return
     fi
     chmod +x "$DNSTT_BINARY"
 
-    echo -e "${C_BLUE}🔐 Generating cryptographic keys...${C_RESET}"
+    echo -e "${C_BLUE}🔐 Generando claves criptográficas...${C_RESET}"
     mkdir -p "$DNSTT_KEYS_DIR"
     "$DNSTT_BINARY" -gen-key -privkey-file "$DNSTT_KEYS_DIR/server.key" -pubkey-file "$DNSTT_KEYS_DIR/server.pub"
-    if [[ ! -f "$DNSTT_KEYS_DIR/server.key" ]]; then echo -e "${C_RED}❌ Failed to generate DNSTT keys.${C_RESET}"; return; fi
+    if [[ ! -f "$DNSTT_KEYS_DIR/server.key" ]]; then echo -e "${C_RED}❌ No se pudieron generar las claves DNSTT.${C_RESET}"; return; fi
     
     local PUBLIC_KEY
     PUBLIC_KEY=$(cat "$DNSTT_KEYS_DIR/server.pub")
     
-    echo -e "\n${C_BLUE}📝 Creating systemd service...${C_RESET}"
+    echo -e "\n${C_BLUE}📝 Creación de un servicio systemd...${C_RESET}"
     cat > "$DNSTT_SERVICE_FILE" <<-EOF
 [Unit]
 Description=DNSTT (DNS Tunnel) Server for $forward_desc
@@ -3313,7 +3313,7 @@ RestartSec=5
 [Install]
 WantedBy=multi-user.target
 EOF
-    echo -e "\n${C_BLUE}💾 Saving configuration and starting service...${C_RESET}"
+    echo -e "\n${C_BLUE}💾 Guardando la configuración e iniciando el servicio...${C_RESET}"
     cat > "$DNSTT_CONFIG_FILE" <<-EOF
 NS_SUBDOMAIN="$NS_SUBDOMAIN"
 TUNNEL_SUBDOMAIN="$TUNNEL_SUBDOMAIN"
@@ -3330,35 +3330,35 @@ EOF
     systemctl start dnstt.service
     sleep 2
     if systemctl is-active --quiet dnstt.service; then
-        echo -e "\n${C_GREEN}✅ SUCCESS: DNSTT has been installed and started!${C_RESET}"
+        echo -e "\n${C_GREEN}✅ ÉXITO: ​​¡DNSTT se ha instalado y iniciado!${C_RESET}"
         show_dnstt_details
     else
-        echo -e "\n${C_RED}❌ ERROR: DNSTT service failed to start.${C_RESET}"
+        echo -e "\n${C_RED}❌ ERROR: El servicio DNSTT no pudo iniciarse.${C_RESET}"
         journalctl -u dnstt.service -n 15 --no-pager
     fi
 }
 
 uninstall_dnstt() {
-    echo -e "\n${C_BOLD}${C_PURPLE}--- 🗑️ Uninstalling DNSTT ---${C_RESET}"
+    echo -e "\n${C_BOLD}${C_PURPLE}--- 🗑️ Desinstalación de DNSTT ---${C_RESET}"
     if [ ! -f "$DNSTT_SERVICE_FILE" ]; then
-        echo -e "${C_YELLOW}ℹ️ DNSTT does not appear to be installed, skipping.${C_RESET}"
+        echo -e "${C_YELLOW}ℹ️ DNSTT no parece estar instalado; se omite.${C_RESET}"
         return
     fi
     local confirm="y"
     if [[ "$UNINSTALL_MODE" != "silent" ]]; then
-        read -p "👉 Are you sure you want to uninstall DNSTT? This will delete DNS records if they were auto-generated. (y/n): " confirm
+        read -p "👉 ¿Estás seguro de que quieres desinstalar DNSTT? Esto eliminará los registros DNS si fueron generados automáticamente. (y/n): " confirm
     fi
     if [[ "$confirm" != "y" ]]; then
-        echo -e "\n${C_YELLOW}❌ Uninstallation cancelled.${C_RESET}"
+        echo -e "\n${C_YELLOW}❌ Desinstalación cancelada.${C_RESET}"
         return
     fi
-    echo -e "${C_BLUE}🛑 Stopping and disabling DNSTT service...${C_RESET}"
+    echo -e "${C_BLUE}🛑 Detención y desactivación del servicio DNSTT...${C_RESET}"
     systemctl stop dnstt.service > /dev/null 2>&1
     systemctl disable dnstt.service > /dev/null 2>&1
     if [ -f "$DNSTT_CONFIG_FILE" ]; then
         source "$DNSTT_CONFIG_FILE"
         if [[ "$DNSTT_RECORDS_MANAGED" == "true" ]]; then
-            echo -e "${C_BLUE}🗑️ Removing auto-generated DNS records...${C_RESET}"
+            echo -e "${C_BLUE}🗑️ Eliminación de registros DNS generados automáticamente...${C_RESET}"
             curl -s -X DELETE "https://desec.io/api/v1/domains/$DESEC_DOMAIN/rrsets/$TUNNEL_SUBDOMAIN/NS/" \
                  -H "Authorization: Token $DESEC_TOKEN" > /dev/null
             curl -s -X DELETE "https://desec.io/api/v1/domains/$DESEC_DOMAIN/rrsets/$NS_SUBDOMAIN/A/" \
@@ -3367,25 +3367,25 @@ uninstall_dnstt() {
                 curl -s -X DELETE "https://desec.io/api/v1/domains/$DESEC_DOMAIN/rrsets/$NS_SUBDOMAIN/AAAA/" \
                      -H "Authorization: Token $DESEC_TOKEN" > /dev/null
             fi
-            echo -e "${C_GREEN}✅ DNS records have been removed.${C_RESET}"
+            echo -e "${C_GREEN}✅ Se han eliminado los registros DNS.${C_RESET}"
         else
-            echo -e "${C_YELLOW}⚠️ DNS records were manually configured. Please delete them from your DNS provider.${C_RESET}"
+            echo -e "${C_YELLOW}⚠️ Los registros DNS se configuraron manualmente. Por favor, elimínalos desde tu proveedor de DNS.${C_RESET}"
         fi
     fi
-    echo -e "${C_BLUE}🗑️ Removing service files and binaries...${C_RESET}"
+    echo -e "${C_BLUE}🗑️ Eliminación de archivos de servicio y binarios...${C_RESET}"
     rm -f "$DNSTT_SERVICE_FILE"
     rm -f "$DNSTT_BINARY"
     rm -rf "$DNSTT_KEYS_DIR"
     rm -f "$DNSTT_CONFIG_FILE"
     systemctl daemon-reload
     
-    echo -e "${C_YELLOW}ℹ️ Restoring system DNS resolver...${C_RESET}"
+    echo -e "${C_YELLOW}ℹ️ Restauración del resolutor DNS del sistema...${C_RESET}"
     chattr -i /etc/resolv.conf &>/dev/null
     systemctl unmask systemd-resolved &>/dev/null
     systemctl enable systemd-resolved &>/dev/null
     systemctl start systemd-resolved &>/dev/null
 
-    echo -e "\n${C_GREEN}✅ DNSTT has been successfully uninstalled.${C_RESET}"
+    echo -e "\n${C_GREEN}✅ DNSTT se ha desinstalado correctamente..${C_RESET}"
 }
 
 install_falcon_proxy() {
@@ -3403,10 +3403,10 @@ install_falcon_proxy() {
         if [[ "$confirm_reinstall" != "y" ]]; then return; fi
     fi
 
-    echo -e "\n${C_BLUE}🌐 Fetching available versions from GitHub...${C_RESET}"
+    echo -e "\n${C_BLUE}🌐 Obteniendo las versiones disponibles desde GitHub...${C_RESET}"
     local releases_json=$(curl -s "https://api.github.com/repos/FirewallFalconsLabs/FirewallFalcon-Manager/releases")
     if [[ -z "$releases_json" || "$releases_json" == "[]" ]]; then
-        echo -e "${C_RED}❌ Error: Could not fetch releases. Check internet or API limits.${C_RESET}"
+        echo -e "${C_RED}❌ Error: No se pudieron obtener las versiones. Comprueba la conexión a internet o los límites de la API.${C_RESET}"
         return
     fi
 
@@ -3414,19 +3414,19 @@ install_falcon_proxy() {
     mapfile -t versions < <(echo "$releases_json" | jq -r '.[].tag_name')
     
     if [ ${#versions[@]} -eq 0 ]; then
-        echo -e "${C_RED}❌ No releases found in the repository.${C_RESET}"
+        echo -e "${C_RED}❌ No se han encontrado versiones en el repositorio.${C_RESET}"
         return
     fi
 
-    echo -e "\n${C_CYAN}Select a version to install:${C_RESET}"
+    echo -e "\n${C_CYAN}Selecciona una versión para instalar:${C_RESET}"
     for i in "${!versions[@]}"; do
         printf "  ${C_GREEN}[%2d]${C_RESET} %s\n" "$((i+1))" "${versions[$i]}"
     done
-    echo -e "  ${C_RED} [ 0]${C_RESET} ↩️ Cancel"
+    echo -e "  ${C_RED} [ 0]${C_RESET} ↩️ Cancelar"
     
     local choice
     while true; do
-        if ! read -r -p "👉 Enter version number [1]: " choice; then
+        if ! read -r -p "👉 Introduce el número de versión [1]: " choice; then
             echo
             return
         fi
@@ -3436,50 +3436,50 @@ install_falcon_proxy() {
             SELECTED_VERSION="${versions[$((choice-1))]}"
             break
         else
-            echo -e "${C_RED}❌ Invalid selection.${C_RESET}"
+            echo -e "${C_RED}❌ Selección no válida.${C_RESET}"
         fi
     done
 
     local ports
-    read -p "👉 Enter port(s) for Falcon Proxy (e.g., 8080 or 8080 8888) [8080]: " ports
+    read -p "👉 Introduce el/los puerto(s) para Falcon Proxy (e.g., 8080 or 8080 8888) [8080]: " ports
     ports=${ports:-8080}
 
     local port_array=($ports)
     for port in "${port_array[@]}"; do
         if ! [[ "$port" =~ ^[0-9]+$ ]] || [ "$port" -lt 1 ] || [ "$port" -gt 65535 ]; then
-            echo -e "\n${C_RED}❌ Invalid port number: $port. Aborting.${C_RESET}"
+            echo -e "\n${C_RED}❌ Número de puerto no válido: $port. Cancelando.${C_RESET}"
             return
         fi
         check_and_free_ports "$port" || return
         check_and_open_firewall_port "$port" tcp || return
     done
 
-    echo -e "\n${C_GREEN}⚙️ Detecting system architecture...${C_RESET}"
+    echo -e "\n${C_GREEN}⚙️ Detección de la arquitectura del sistema...${C_RESET}"
     local arch=$(uname -m)
     local binary_name=""
     if [[ "$arch" == "x86_64" ]]; then
         binary_name="falconproxy"
-        echo -e "${C_BLUE}ℹ️ Detected x86_64 (amd64) architecture.${C_RESET}"
+        echo -e "${C_BLUE}ℹ️ Detectada x86_64 (amd64) arquitectura.${C_RESET}"
     elif [[ "$arch" == "aarch64" || "$arch" == "arm64" ]]; then
         binary_name="falconproxyarm"
-        echo -e "${C_BLUE}ℹ️ Detected ARM64 architecture.${C_RESET}"
+        echo -e "${C_BLUE}ℹ️ Detectada ARM64 arquitectura.${C_RESET}"
     else
-        echo -e "\n${C_RED}❌ Unsupported architecture: $arch. Cannot install Falcon Proxy.${C_RESET}"
+        echo -e "\n${C_RED}❌ Arquitectura no compatible: $arch. No es posible instalar Falcon Proxy.${C_RESET}"
         return
     fi
     
     # Construct download URL based on selected version
     local download_url="https://github.com/FirewallFalconsLabs/FirewallFalcon-Manager/releases/download/$SELECTED_VERSION/$binary_name"
 
-    echo -e "\n${C_GREEN}📥 Downloading Falcon Proxy $SELECTED_VERSION ($binary_name)...${C_RESET}"
+    echo -e "\n${C_GREEN}📥 Descargando Falcon Proxy $SELECTED_VERSION ($binary_name)...${C_RESET}"
     wget -q --show-progress -O "$FALCONPROXY_BINARY" "$download_url"
     if [ $? -ne 0 ]; then
-        echo -e "\n${C_RED}❌ Failed to download the binary. Please ensure version $SELECTED_VERSION has asset '$binary_name'.${C_RESET}"
+        echo -e "\n${C_RED}❌ No se pudo descargar el binario. Asegúrese de que la versión $SELECTED_VERSION tenga un activo '$binary_name'.${C_RESET}"
         return
     fi
     chmod +x "$FALCONPROXY_BINARY"
 
-    echo -e "\n${C_GREEN}📝 Creating systemd service file...${C_RESET}"
+    echo -e "\n${C_GREEN}📝 Creación de un archivo de servicio de systemd...${C_RESET}"
     cat > "$FALCONPROXY_SERVICE_FILE" <<EOF
 [Unit]
 Description=Falcon Proxy ($SELECTED_VERSION)
@@ -3496,44 +3496,44 @@ RestartSec=2s
 WantedBy=default.target
 EOF
 
-    echo -e "\n${C_GREEN}💾 Saving configuration...${C_RESET}"
+    echo -e "\n${C_GREEN}💾 Guardando configuración...${C_RESET}"
     cat > "$FALCONPROXY_CONFIG_FILE" <<EOF
 PORTS="$ports"
 INSTALLED_VERSION="$SELECTED_VERSION"
 EOF
 
-    echo -e "\n${C_GREEN}▶️ Enabling and starting Falcon Proxy service...${C_RESET}"
+    echo -e "\n${C_GREEN}▶️ Habilitar e iniciar el servicio Falcon Proxy...${C_RESET}"
     systemctl daemon-reload
     systemctl enable falconproxy.service
     systemctl restart falconproxy.service
     sleep 2
     
     if systemctl is-active --quiet falconproxy; then
-        echo -e "\n${C_GREEN}✅ SUCCESS: Falcon Proxy $SELECTED_VERSION is installed and active.${C_RESET}"
+        echo -e "\n${C_GREEN}✅ SUCCESS: Falcon Proxy $SELECTED_VERSION Está instalado y activo.${C_RESET}"
         echo -e "   Listening on port(s): ${C_YELLOW}$ports${C_RESET}"
     else
-        echo -e "\n${C_RED}❌ ERROR: Falcon Proxy service failed to start.${C_RESET}"
-        echo -e "${C_YELLOW}ℹ️ Displaying last 15 lines of the service log for diagnostics:${C_RESET}"
+        echo -e "\n${C_RED}❌ ERROR: El servicio Falcon Proxy no pudo iniciarse.${C_RESET}"
+        echo -e "${C_YELLOW}ℹ️ Se muestran las últimas 15 líneas del registro del servicio para fines de diagnóstico:${C_RESET}"
         journalctl -u falconproxy.service -n 15 --no-pager
     fi
 }
 
 uninstall_falcon_proxy() {
-    echo -e "\n${C_BOLD}${C_PURPLE}--- 🗑️ Uninstalling Falcon Proxy ---${C_RESET}"
+    echo -e "\n${C_BOLD}${C_PURPLE}--- 🗑️ Desinstalación de Falcon Proxy ---${C_RESET}"
     if [ ! -f "$FALCONPROXY_SERVICE_FILE" ]; then
-        echo -e "${C_YELLOW}ℹ️ Falcon Proxy is not installed, skipping.${C_RESET}"
+        echo -e "${C_YELLOW}ℹ️ Falcon Proxy no está instalado; se omite.${C_RESET}"
         return
     fi
-    echo -e "${C_GREEN}🛑 Stopping and disabling Falcon Proxy service...${C_RESET}"
+    echo -e "${C_GREEN}🛑 Detención y deshabilitación del servicio Falcon Proxy...${C_RESET}"
     systemctl stop falconproxy.service >/dev/null 2>&1
     systemctl disable falconproxy.service >/dev/null 2>&1
-    echo -e "${C_GREEN}🗑️ Removing service file...${C_RESET}"
+    echo -e "${C_GREEN}🗑️ Eliminando archivo de servicio...${C_RESET}"
     rm -f "$FALCONPROXY_SERVICE_FILE"
     systemctl daemon-reload
-    echo -e "${C_GREEN}🗑️ Removing binary and config files...${C_RESET}"
+    echo -e "${C_GREEN}🗑️ Eliminación de archivos binarios y de configuración...${C_RESET}"
     rm -f "$FALCONPROXY_BINARY"
     rm -f "$FALCONPROXY_CONFIG_FILE"
-    echo -e "${C_GREEN}✅ Falcon Proxy has been uninstalled successfully.${C_RESET}"
+    echo -e "${C_GREEN}✅ Falcon Proxy se ha desinstalado correctamente..${C_RESET}"
 }
 
 # --- ZiVPN Installation Logic ---
