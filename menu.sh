@@ -2232,10 +2232,10 @@ install_udp_custom() {
     arch=$(uname -m)
     local binary_url=""
     if [[ "$arch" == "x86_64" ]]; then
-        binary_url="https://raw.githubusercontent.com/ianalejandrook14x/PANEL-SSH/main/udp/udp-custom-linux-amd64[1]"
+        binary_url="https://raw.githubusercontent.com/ianalejandrook14x/PANEL-SSH/refs/heads/main/udp/udp-custom-linux-amd64[1]"
         echo -e "${C_BLUE}ℹ️ Detected x86_64 (amd64) architecture.${C_RESET}"
     elif [[ "$arch" == "aarch64" || "$arch" == "arm64" ]]; then
-        binary_url="https://raw.githubusercontent.com/ianalejandrook14x/PANEL-SSH/main/udp/udp-custom-linux-arm[1]"
+        binary_url="https://raw.githubusercontent.com/ianalejandrook14x/PANEL-SSH/refs/heads/main/udp/udp-custom-linux-arm[1]"
         echo -e "${C_BLUE}ℹ️ Detected ARM64 architecture.${C_RESET}"
     else
         echo -e "\n${C_RED}❌ Unsupported architecture: $arch. Cannot install udp-custom.${C_RESET}"
