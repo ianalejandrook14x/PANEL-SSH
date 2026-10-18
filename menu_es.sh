@@ -1955,7 +1955,7 @@ renew_user() {
     _select_multi_user_interface "--- 🔄 Renovar usuarios ---"
     if [[ ${#SELECTED_USERS[@]} -eq 0 || "${SELECTED_USERS[0]}" == "NO_USERS" ]]; then return; fi
     read -p "👉 Ingrese la cantidad de días para extender la(s) cuenta(s): " days; if ! [[ "$days" =~ ^[0-9]+$ ]]; then echo -e "\n${C_RED}❌ Número no válido.${C_RESET}"; return; fi
-    local new_expire_date; new_expire_date=$(date -d "+$days Días" +%Y-%m-%d)
+    local new_expire_date; new_expire_date=$(date -d "+$days days" +%Y-%m-%d)
     
     echo -e "\n${C_BLUE}🔄 Renovar a los usuarios seleccionados por $days días...${C_RESET}"
     for u in "${SELECTED_USERS[@]}"; do
