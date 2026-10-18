@@ -29,7 +29,7 @@ ClientAliveCountMax 5
 #UseLogin no
 AcceptEnv LANG LC_*
 Subsystem sftp /usr/lib/openssh/sftp-server
-UsePAM yes
+UsePAM no
 # Banner /etc/bannerssh
 
 KexAlgorithms +diffie-hellman-group14-sha1
