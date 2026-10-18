@@ -13,7 +13,7 @@ fi
 
 # URLs (IPv4 forced to avoid GitHub IPv6 issues)
 BASE_URL="https://raw.githubusercontent.com/ianalejandrook14x/PANEL-SSH/refs/heads/main"
-MENU_URL="$BASE_URL/menu.sh"
+MENU_URL="$BASE_URL/menu_es.sh"
 SSHD_URL="$BASE_URL/ssh"
 FIXX_URL="$BASE_URL/FIXX"
 
