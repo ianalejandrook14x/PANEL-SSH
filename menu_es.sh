@@ -1460,7 +1460,7 @@ _select_multi_user_interface() {
     echo -e "\n  ${C_GREEN}[all]${C_RESET} Selecciona TODOS los usuarios listados"
     echo -e "  ${C_RED}  [0]${C_RESET} ↩️ Cancelar y volver al menú principal"
     echo -e "\n${C_CYAN}💡 Puedes seleccionar varios indicando números, un rango o el nombre de usuario exacto.${C_RESET}"
-    echo -e "${C_CYAN}   Ejemplp: '1 2 3' o '1,3' oo  '1-4' o 'tewianix fixxed'${C_RESET}"
+    echo -e "${C_CYAN}   Ejemplo: '1 2 3' o '1,3' oo  '1-4' o 'tewianix fixxed'${C_RESET}"
     if [[ "$include_orphan_users" == "true" ]]; then
         echo -e "${C_CYAN}   Los usuarios marcados como '(system-only)' son cuentas antiguas que aún se encuentran en el VPS pero que no aparecen en users.db${C_RESET}"
     fi
