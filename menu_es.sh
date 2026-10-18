@@ -1731,7 +1731,7 @@ edit_user() {
                ;;
             2) read -p "Introduce la nueva duración (en días a partir de hoy): " days
                if [[ "$days" =~ ^[0-9]+$ ]]; then
-                   local new_expire_date; new_expire_date=$(date -d "+$days dias" +%Y-%m-%d); chage -E "$new_expire_date" "$username"
+                   local new_expire_date; new_expire_date=$(date -d "+$days days" +%Y-%m-%d); chage -E "$new_expire_date" "$username"
                    sed -i "s/^$username:.*/$username:$cur_pass:$new_expire_date:$cur_limit:$cur_bw:$cur_daily_bw/" "$DB_FILE"
                    echo -e "\n${C_GREEN}✅ Expiración para '$username' establecido en ${C_YELLOW}$new_expire_date${C_RESET}."
                else echo -e "\n${C_RED}❌ Número de días no válido.${C_RESET}"; fi ;;
