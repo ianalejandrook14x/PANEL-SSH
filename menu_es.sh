@@ -4558,7 +4558,7 @@ uninstall_script() {
     echo -e " - Todos los servicios instalados (badvpn, udp-custom, HAProxy Edge Stack, Nginx, DNSTT)"
     echo -e "\n${C_RED}Esta acción es irreversible.${C_RESET}"
     echo ""
-    read -p "👉 Escriba 'sí' para confirmar y proceder con la desinstalación: " confirm
+    read -p "👉 Escriba 'yes' para confirmar y proceder con la desinstalación: " confirm
     if [[ "$confirm" != "yes" ]]; then
         echo -e "\n${C_GREEN}✅ Desinstalación cancelada.${C_RESET}"
         return
