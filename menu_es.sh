@@ -4238,7 +4238,7 @@ protocol_menu() {
         local xui_status; if command -v x-ui &> /dev/null; then xui_status="${C_STATUS_A}(Instalado)${C_RESET}"; else xui_status="${C_STATUS_I}(No Instalado)${C_RESET}"; fi  # 3X-UI uses same 'x-ui' binary name
         
         echo -e "\n   ${C_TITLE}══════════════[ ${C_BOLD}🔌 GESTIÓN DE PROTOCOLOS Y PANELES ${C_RESET}${C_TITLE}]══════════════${C_RESET}"
-        echo -e "     ${C_ACCENT}--- PROTOCOLOS DE TUNELIZACIÓN---${C_RESET}"
+        echo -e "     ${C_ACCENT}--- PROTOCOLOS DE TUNELIZACIÓN ---${C_RESET}"
         printf "     ${C_CHOICE}[ 1]${C_RESET} %-45s %s\n" "🚀 Instalar badvpn (UDP 7300)" "$badvpn_status"
         printf "     ${C_CHOICE}[ 2]${C_RESET} %-45s\n" "🗑️ Desinstalar badvpn"
         printf "     ${C_CHOICE}[ 3]${C_RESET} %-45s %s\n" "🚀 Instalar udp-custom" "$udp_custom_status"
